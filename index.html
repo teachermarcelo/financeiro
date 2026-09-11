@@ -1,133 +1,411 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FinControl Pro — Gestão Financeira</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinControl Pro</title>
 <style>
-body{font-family:Inter,system-ui,sans-serif;background:#f5f7fb;color:#172033}.side{background:#0b1220}.nav.active,.nav:hover{background:#19263c;color:#fff}.card{background:#fff;border:1px solid #e5eaf1;border-radius:18px;box-shadow:0 5px 20px #0f172a08}.input{width:100%;border:1px solid #dce2ea;border-radius:11px;padding:10px 12px;outline:0}.input:focus{border-color:#5680ff;box-shadow:0 0 0 3px #dbe5ff}.btn{padding:10px 14px;border-radius:11px;font-weight:700;font-size:14px}.primary{background:#2563eb;color:white}.primary:hover{background:#1d4ed8}.tab{display:none}.tab.active{display:block}.badge{padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700}.table th{font-size:11px;text-transform:uppercase;color:#718096;text-align:left;background:#f8fafc;padding:12px}.table td{padding:12px;border-top:1px solid #edf0f4;font-size:13px}.bar{height:8px;background:#edf1f6;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;border-radius:9px}.modalbg{background:#02081799;backdrop-filter:blur(5px)}@media(max-width:900px){.side{width:72px}.brandtext,.navtext,.sidefoot{display:none}.main{margin-left:72px}}@media(max-width:650px){.side{display:none}.main{margin-left:0}}
+:root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#718096;--line:#e5eaf1;--nav:#0b1220;--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#d97706;--purple:#7c3aed}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{display:flex;min-height:100vh}.sidebar{width:260px;background:var(--nav);color:#cbd5e1;padding:18px 14px;position:fixed;inset:0 auto 0 0;z-index:20;overflow:auto}.brand{display:flex;align-items:center;gap:12px;padding:8px 10px 24px}.logo{width:42px;height:42px;border-radius:13px;background:#2563eb;color:#fff;display:grid;place-items:center;font-weight:900;font-size:20px}.brand b{color:#fff;font-size:18px}.brand small{display:block;font-size:9px;letter-spacing:1.5px;margin-top:2px}.nav-title{font-size:10px;color:#64748b;margin:14px 10px 6px;text-transform:uppercase}.nav{width:100%;display:flex;gap:11px;align-items:center;padding:11px 12px;border-radius:10px;color:#aebbd0;background:transparent;text-align:left;margin:2px 0}.nav:hover,.nav.active{background:#19263c;color:#fff}.nav .ico{width:20px;text-align:center}.main{margin-left:260px;min-width:0;flex:1}.top{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10}.top h1{font-size:20px;margin:0}.top p{font-size:12px;color:var(--muted);margin:3px 0 0}.top-actions{display:flex;gap:10px;align-items:center}.content{padding:28px;max-width:1500px;margin:auto}.page{display:none}.page.active{display:block}.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:18px;box-shadow:0 5px 22px #17203308}.kpi .label{color:var(--muted);font-size:13px}.kpi .value{font-size:25px;font-weight:800;margin-top:8px}.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.blue{color:var(--blue)}.purple{color:var(--purple)}.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap}.toolbar h2{margin:0;font-size:23px}.toolbar p{margin:4px 0;color:var(--muted);font-size:13px}.btn{padding:10px 14px;border-radius:10px;font-weight:700;background:#eef2f7;color:#334155}.btn.primary{background:var(--blue);color:#fff}.btn.danger{background:#fee2e2;color:#b91c1c}.btn.small{padding:7px 9px;font-size:12px}.input{border:1px solid #d8e0ea;background:#fff;border-radius:10px;padding:10px 11px;width:100%;outline:0}.input:focus{border-color:#6b8cff;box-shadow:0 0 0 3px #dbe5ff}.filters{display:flex;gap:9px;flex-wrap:wrap}.filters .input{width:auto;min-width:150px}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th{background:#f8fafc;color:#64748b;font-size:10px;text-transform:uppercase;padding:11px;text-align:left;white-space:nowrap}.table td{padding:12px 11px;border-top:1px solid #edf1f5;font-size:13px;white-space:nowrap}.badge{display:inline-block;padding:4px 8px;border-radius:99px;font-size:10px;font-weight:800}.paid{background:#dcfce7;color:#047857}.pending{background:#fef3c7;color:#a16207}.overdue{background:#fee2e2;color:#b91c1c}.partial{background:#dbeafe;color:#1d4ed8}.cancelled{background:#e5e7eb;color:#4b5563}.folder-grid,.service-grid,.person-grid,.account-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.folder-icon{width:45px;height:45px;border-radius:13px;background:#eff6ff;color:#2563eb;display:grid;place-items:center;font-size:21px}.muted{color:var(--muted)}.smalltext{font-size:12px}.progress{height:8px;background:#e9eef5;border-radius:20px;overflow:hidden}.progress span{display:block;height:100%;background:var(--green);border-radius:20px}.service-card h3{margin:7px 0 3px}.service-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0;font-size:11px;color:var(--muted)}.service-meta b{display:block;color:var(--text);font-size:14px;margin-top:3px}.actions{display:flex;justify-content:flex-end;gap:3px}.empty{text-align:center;padding:45px 20px;color:#94a3b8}.modal{position:fixed;inset:0;background:#02081799;display:none;align-items:center;justify-content:center;padding:18px;z-index:100}.modal.open{display:flex}.modal-box{background:#fff;border-radius:18px;width:min(680px,100%);max-height:94vh;overflow:auto}.modal-head{display:flex;justify-content:space-between;padding:18px;border-bottom:1px solid var(--line)}.modal-body{padding:18px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field{margin-bottom:13px}.field label{font-size:12px;font-weight:700;display:block;margin-bottom:5px}.full{grid-column:1/-1}.modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}.chart{height:250px;display:flex;align-items:end;gap:12px;padding:20px 10px 0}.barcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:end;height:100%;gap:5px}.bar{width:65%;background:#2563eb;border-radius:7px 7px 0 0;min-height:2px}.barcol small{font-size:10px;color:var(--muted)}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.day{min-height:100px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px}.day b{font-size:12px}.event{font-size:9px;border-radius:5px;padding:3px;margin-top:5px;overflow:hidden}.event.in{background:#dcfce7;color:#047857}.event.out{background:#fee2e2;color:#b91c1c}.notice{padding:12px;border-radius:12px;background:#fff7ed;color:#9a3412;font-size:12px}.list{display:grid;gap:9px}.listrow{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #edf1f5;font-size:13px}.mobile-menu{display:none}
+@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.folder-grid,.service-grid,.person-grid,.account-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.mobile-menu{display:block}.top{padding:0 15px}.content{padding:18px}.g4,.g3,.g2,.folder-grid,.service-grid,.person-grid,.account-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.calendar{grid-template-columns:repeat(2,1fr)}.top-actions .period{display:none}}
 </style>
 </head>
 <body>
-<aside class="side fixed left-0 top-0 bottom-0 w-64 z-40 text-slate-300 p-4">
- <div class="flex items-center gap-3 h-14 mb-5 px-2"><div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black">F</div><div class="brandtext"><b class="text-white text-lg">FinControl</b><div class="text-[10px] tracking-widest">PRO FINANCE</div></div></div>
- <nav id="nav" class="space-y-1"></nav>
- <div class="sidefoot absolute bottom-4 left-4 right-4 p-3 rounded-xl bg-white/5"><div class="text-[10px] text-slate-500">VERSÃO</div><div class="text-sm text-white">Completa • Local</div></div>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+ <div class="brand"><div class="logo">F</div><div><b>FinControl</b><small>PRO FINANCE</small></div></div>
+ <div class="nav-title">Principal</div>
+ <button class="nav active" data-page="overview"><span class="ico">⌂</span> Overview</button>
+ <button class="nav" data-page="transactions"><span class="ico">↔</span> Movimentações</button>
+ <button class="nav" data-page="receivables"><span class="ico">↓</span> A receber</button>
+ <button class="nav" data-page="payables"><span class="ico">↑</span> A pagar</button>
+ <div class="nav-title">Organização</div>
+ <button class="nav" data-page="folders"><span class="ico">▣</span> Categorias / Pastas</button>
+ <button class="nav" data-page="services"><span class="ico">◆</span> Serviços</button>
+ <button class="nav" data-page="people"><span class="ico">♙</span> Clientes / Fornecedores</button>
+ <div class="nav-title">Contas</div>
+ <button class="nav" data-page="accounts"><span class="ico">▤</span> Caixas & Contas</button>
+ <button class="nav" data-page="cards"><span class="ico">▱</span> Cartões</button>
+ <div class="nav-title">Planejamento</div>
+ <button class="nav" data-page="calendar"><span class="ico">□</span> Calendário</button>
+ <button class="nav" data-page="goals"><span class="ico">◎</span> Metas</button>
+ <button class="nav" data-page="reports"><span class="ico">▥</span> Relatórios</button>
+ <button class="nav" data-page="settings"><span class="ico">⚙</span> Configurações</button>
 </aside>
-<main class="main ml-64 min-h-screen">
-<header class="sticky top-0 z-30 h-16 bg-white/90 backdrop-blur border-b px-5 md:px-8 flex justify-between items-center">
- <div><h1 id="title" class="font-bold text-xl">Overview</h1><p id="sub" class="text-xs text-slate-500">Sua visão financeira</p></div>
- <div class="flex gap-2"><select id="period" class="input !w-auto"><option value="month">Este mês</option><option value="year">Este ano</option><option value="all">Todos</option></select><button onclick="openTx()" class="btn primary">+ Novo lançamento</button></div>
+
+<main class="main">
+<header class="top">
+ <div style="display:flex;gap:10px;align-items:center"><button class="btn mobile-menu" id="menuBtn">☰</button><div><h1 id="pageTitle">Overview</h1><p id="pageSub">Sua visão financeira</p></div></div>
+ <div class="top-actions"><select class="input period" id="period" style="width:auto"><option value="month">Este mês</option><option value="year">Este ano</option><option value="all">Todos</option></select><button class="btn primary" id="quickAdd">+ Novo lançamento</button></div>
 </header>
-<section class="p-5 md:p-8">
-<div id="overview" class="tab active"></div><div id="folders" class="tab"></div><div id="folderDetail" class="tab"></div><div id="services" class="tab"></div><div id="transactions" class="tab"></div><div id="receivables" class="tab"></div><div id="payables" class="tab"></div><div id="accounts" class="tab"></div><div id="people" class="tab"></div><div id="cards" class="tab"></div><div id="calendar" class="tab"></div><div id="goals" class="tab"></div><div id="reports" class="tab"></div><div id="settings" class="tab"></div>
-</section></main>
+<div class="content">
 
-<!-- lançamento -->
-<div id="txModal" class="modalbg fixed inset-0 z-50 hidden items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-xl max-h-[94vh] overflow-auto">
-<div class="p-5 border-b flex justify-between"><div><b id="txTitle">Novo lançamento</b><p class="text-xs text-slate-500">Registre entradas, saídas ou pagamentos</p></div><button onclick="closeM('txModal')"><i data-lucide="x"></i></button></div>
-<form id="txForm" class="p-5 space-y-4"><input id="txId" type="hidden">
-<div class="grid grid-cols-2 gap-3"><label class="text-sm">Tipo<select id="txType" class="input mt-1"><option value="income">Entrada</option><option value="expense">Saída</option></select></label><label class="text-sm">Status<select id="txStatus" class="input mt-1"><option value="paid">Pago / Recebido</option><option value="pending">Pendente</option><option value="overdue">Vencido</option><option value="partial">Parcial</option><option value="cancelled">Cancelado</option></select></label></div>
-<label class="text-sm">Descrição<input id="txDesc" required class="input mt-1" placeholder="Ex.: Parcela 03"></label>
-<div class="grid grid-cols-2 gap-3"><label class="text-sm">Valor<input id="txAmount" required type="number" min="0" step=".01" class="input mt-1"></label><label class="text-sm">Data<input id="txDate" required type="date" class="input mt-1"></label></div>
-<div class="grid grid-cols-2 gap-3"><label class="text-sm">Pasta / categoria<select id="txFolder" class="input mt-1"></select></label><label class="text-sm">Conta / caixa<select id="txAccount" class="input mt-1"></select></label></div>
-<label class="text-sm">Cliente / fornecedor<input id="txPerson" class="input mt-1"></label><label class="text-sm">Observações<textarea id="txNotes" class="input mt-1" rows="2"></textarea></label>
-<div class="flex justify-end gap-2"><button type="button" onclick="closeM('txModal')" class="btn bg-slate-100">Cancelar</button><button class="btn primary">Salvar</button></div></form></div></div>
+<section id="overview" class="page active"></section>
+<section id="transactions" class="page"></section>
+<section id="receivables" class="page"></section>
+<section id="payables" class="page"></section>
+<section id="folders" class="page"></section>
+<section id="services" class="page"></section>
+<section id="people" class="page"></section>
+<section id="accounts" class="page"></section>
+<section id="cards" class="page"></section>
+<section id="calendar" class="page"></section>
+<section id="goals" class="page"></section>
+<section id="reports" class="page"></section>
+<section id="settings" class="page"></section>
 
-<!-- pasta -->
-<div id="folderModal" class="modalbg fixed inset-0 z-50 hidden items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-md">
-<div class="p-5 border-b flex justify-between"><b>Nova categoria / pasta</b><button onclick="closeM('folderModal')"><i data-lucide="x"></i></button></div>
-<form id="folderForm" class="p-5 space-y-4"><label class="text-sm">Nome<input id="fdName" required class="input mt-1" placeholder="Ex.: Reforma"></label><label class="text-sm">Descrição<textarea id="fdDesc" class="input mt-1"></textarea></label><label class="text-sm">Tipo<select id="fdType" class="input mt-1"><option value="both">Entradas e saídas</option><option value="income">Receitas</option><option value="expense">Despesas</option></select></label><button class="btn primary w-full">Criar pasta</button></form></div></div>
+</div>
+</main>
+</div>
 
-<!-- serviço -->
-<div id="serviceModal" class="modalbg fixed inset-0 z-50 hidden items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-2xl max-h-[94vh] overflow-auto">
-<div class="p-5 border-b flex justify-between"><div><b id="svTitle">Novo serviço</b><p class="text-xs text-slate-500">Contrato, parcelas, datas fixas e acompanhamento</p></div><button onclick="closeM('serviceModal')"><i data-lucide="x"></i></button></div>
-<form id="serviceForm" class="p-5 space-y-4"><input id="svId" type="hidden">
-<div class="grid grid-cols-2 gap-3"><label class="text-sm">Cliente<input id="svClient" required class="input mt-1"></label><label class="text-sm">Serviço<input id="svName" required class="input mt-1"></label></div>
-<div class="grid grid-cols-3 gap-3"><label class="text-sm">Início<input id="svStart" required type="date" class="input mt-1"></label><label class="text-sm">Final<input id="svEnd" required type="date" class="input mt-1"></label><label class="text-sm">Valor total<input id="svTotal" required type="number" min="0" step=".01" class="input mt-1"></label></div>
-<div class="grid grid-cols-2 gap-3"><label class="text-sm">Cobrança<select id="svBilling" class="input mt-1" onchange="billingUI()"><option value="single">Única</option><option value="installments">Parcelas</option><option value="fixed">Datas fixas</option></select></label><label class="text-sm">Pasta<select id="svFolder" class="input mt-1"></select></label></div>
-<div id="inst" class="hidden grid grid-cols-2 gap-3"><label class="text-sm">Nº parcelas<input id="svN" type="number" min="1" class="input mt-1"></label><label class="text-sm">Valor parcela<input id="svV" type="number" min="0" step=".01" class="input mt-1"></label></div>
-<div id="fixed" class="hidden grid grid-cols-3 gap-3"><label class="text-sm">Periodicidade<select id="svFreq" class="input mt-1"><option value="monthly">Mensal</option><option value="weekly">Semanal</option></select></label><label class="text-sm">Dia fixo<input id="svDay" type="number" min="1" max="31" class="input mt-1"></label><label class="text-sm">Meta de datas<input id="svExpected" type="number" min="0" class="input mt-1" placeholder="Automático"></label></div>
-<label class="text-sm">Observações<textarea id="svNotes" class="input mt-1"></textarea></label><div class="flex justify-end gap-2"><button type="button" onclick="closeM('serviceModal')" class="btn bg-slate-100">Cancelar</button><button class="btn primary">Salvar serviço</button></div></form></div></div>
+<!-- TRANSACTION MODAL -->
+<div class="modal" id="txModal"><div class="modal-box"><div class="modal-head"><div><b id="txModalTitle">Novo lançamento</b><div class="smalltext muted">Entrada, saída, recebimento ou pagamento</div></div><button class="btn" data-close="txModal">✕</button></div>
+<form id="txForm" class="modal-body"><input id="txId" type="hidden">
+<div class="form-grid">
+<div class="field"><label>Tipo</label><select id="txType" class="input"><option value="income">Entrada</option><option value="expense">Saída</option></select></div>
+<div class="field"><label>Status</label><select id="txStatus" class="input"><option value="paid">Pago / Recebido</option><option value="pending">Pendente</option><option value="overdue">Vencido</option><option value="partial">Parcial</option><option value="cancelled">Cancelado</option></select></div>
+<div class="field full"><label>Descrição *</label><input id="txDesc" class="input" required></div>
+<div class="field"><label>Valor *</label><input id="txAmount" class="input" type="number" min="0" step=".01" required></div>
+<div class="field"><label>Data *</label><input id="txDate" class="input" type="date" required></div>
+<div class="field"><label>Categoria / Pasta</label><select id="txFolder" class="input"></select></div>
+<div class="field"><label>Conta / Caixa</label><select id="txAccount" class="input"></select></div>
+<div class="field full"><label>Cliente / Fornecedor</label><input id="txPerson" class="input"></div>
+<div class="field full"><label>Observações</label><textarea id="txNotes" class="input" rows="3"></textarea></div>
+</div><div class="modal-foot"><button type="button" class="btn" data-close="txModal">Cancelar</button><button class="btn primary">Salvar lançamento</button></div>
+</form></div></div>
 
-<!-- pagamento -->
-<div id="payModal" class="modalbg fixed inset-0 z-50 hidden items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-md"><div class="p-5 border-b flex justify-between"><b>Registrar pagamento</b><button onclick="closeM('payModal')"><i data-lucide="x"></i></button></div>
-<form id="payForm" class="p-5 space-y-4"><input id="payService" type="hidden"><label class="text-sm">Valor pago<input id="payAmount" required type="number" min="0" step=".01" class="input mt-1"></label><label class="text-sm">Data<input id="payDate" required type="date" class="input mt-1"></label><label class="text-sm">Forma<select id="payMethod" class="input mt-1"><option>PIX</option><option>Dinheiro</option><option>Transferência</option><option>Cartão</option><option>Outro</option></select></label><label class="text-sm">Observação<input id="payNote" class="input mt-1"></label><button class="btn primary w-full">Registrar pagamento</button></form></div></div>
+<!-- FOLDER MODAL -->
+<div class="modal" id="folderModal"><div class="modal-box"><div class="modal-head"><b id="folderModalTitle">Nova pasta</b><button class="btn" data-close="folderModal">✕</button></div>
+<form id="folderForm" class="modal-body"><input id="folderId" type="hidden"><div class="field"><label>Nome *</label><input id="folderName" class="input" required></div><div class="field"><label>Descrição</label><textarea id="folderDesc" class="input"></textarea></div><div class="field"><label>Tipo</label><select id="folderType" class="input"><option value="both">Entradas e saídas</option><option value="income">Receitas</option><option value="expense">Despesas</option></select></div><div class="modal-foot"><button type="button" class="btn" data-close="folderModal">Cancelar</button><button class="btn primary">Salvar</button></div></form></div></div>
+
+<!-- SERVICE MODAL -->
+<div class="modal" id="serviceModal"><div class="modal-box"><div class="modal-head"><div><b id="serviceModalTitle">Novo serviço</b><div class="smalltext muted">Contrato e recebimentos</div></div><button class="btn" data-close="serviceModal">✕</button></div>
+<form id="serviceForm" class="modal-body"><input id="serviceId" type="hidden"><div class="form-grid">
+<div class="field"><label>Cliente *</label><input id="serviceClient" class="input" required></div><div class="field"><label>Nome do serviço *</label><input id="serviceName" class="input" required></div>
+<div class="field"><label>Data inicial *</label><input id="serviceStart" type="date" class="input" required></div><div class="field"><label>Data final *</label><input id="serviceEnd" type="date" class="input" required></div>
+<div class="field"><label>Valor total *</label><input id="serviceTotal" type="number" min="0" step=".01" class="input" required></div><div class="field"><label>Categoria / Pasta</label><select id="serviceFolder" class="input"></select></div>
+<div class="field"><label>Modelo de cobrança</label><select id="serviceBilling" class="input"><option value="single">Pagamento único</option><option value="installments">Parcelado</option><option value="fixed">Datas fixas</option></select></div>
+<div class="field" id="installmentFields"><label>Número de parcelas</label><input id="serviceN" type="number" min="1" class="input"></div>
+<div class="field" id="installmentValueField"><label>Valor de cada parcela</label><input id="serviceV" type="number" min="0" step=".01" class="input"></div>
+<div class="field" id="fixedFields"><label>Periodicidade</label><select id="serviceFreq" class="input"><option value="monthly">Mensal</option><option value="weekly">Semanal</option></select></div>
+<div class="field" id="fixedDayField"><label>Dia fixo</label><input id="serviceDay" type="number" min="1" max="31" class="input"></div>
+<div class="field" id="expectedField"><label>Quantidade prevista</label><input id="serviceExpected" type="number" min="1" class="input"></div>
+<div class="field full"><label>Observações</label><textarea id="serviceNotes" class="input"></textarea></div>
+</div><div class="modal-foot"><button type="button" class="btn" data-close="serviceModal">Cancelar</button><button class="btn primary">Salvar serviço</button></div>
+</form></div></div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal" id="paymentModal"><div class="modal-box"><div class="modal-head"><div><b>Registrar pagamento</b><div id="paymentServiceName" class="smalltext muted"></div></div><button class="btn" data-close="paymentModal">✕</button></div>
+<form id="paymentForm" class="modal-body"><input id="paymentServiceId" type="hidden"><div class="field"><label>Valor pago *</label><input id="paymentAmount" type="number" min="0.01" step=".01" class="input" required></div><div class="field"><label>Data *</label><input id="paymentDate" type="date" class="input" required></div><div class="field"><label>Forma de pagamento</label><select id="paymentMethod" class="input"><option>PIX</option><option>Dinheiro</option><option>Transferência</option><option>Cartão</option><option>Boleto</option><option>Outro</option></select></div><div class="field"><label>Observação</label><input id="paymentNote" class="input"></div><div class="modal-foot"><button type="button" class="btn" data-close="paymentModal">Cancelar</button><button class="btn primary">Registrar</button></div></form>
+</div></div>
 
 <script>
-const KEY='fincontrol_complete_v3', uid=()=>crypto.randomUUID(), today=()=>new Date().toISOString().slice(0,10);
-let D=JSON.parse(localStorage.getItem(KEY)||'null')||{
- folders:[{id:uid(),name:'Casa',desc:'Despesas da casa',type:'expense'},{id:uid(),name:'Trabalho',desc:'Serviços e receitas',type:'income'},{id:uid(),name:'Veículo',desc:'Carro e transporte',type:'expense'}],
- accounts:[{id:uid(),name:'Conta principal',type:'Banco',balance:0},{id:uid(),name:'Dinheiro',type:'Caixa',balance:0}],
- people:[{id:uid(),name:'Cliente Exemplo',kind:'Cliente',phone:'',email:''}],
- cards:[{id:uid(),name:'Cartão principal',limit:5000,used:0}],
+(function(){
+"use strict";
+
+const KEY="fincontrol_pro_v4";
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toISOString().slice(0,10);
+const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,9);
+const money=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const dateBR=d=>d?new Date(d+"T12:00:00").toLocaleDateString("pt-BR"):"—";
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+const defaults={
+ folders:[
+  {id:id(),name:"Casa",desc:"Despesas da casa",type:"expense"},
+  {id:id(),name:"Trabalho",desc:"Receitas e custos profissionais",type:"both"},
+  {id:id(),name:"Veículo",desc:"Carro e transporte",type:"expense"}
+ ],
+ accounts:[
+  {id:id(),name:"Conta principal",type:"Banco",balance:0},
+  {id:id(),name:"Dinheiro",type:"Caixa",balance:0}
+ ],
+ people:[{id:id(),name:"Cliente Exemplo",kind:"Cliente",phone:"",email:""}],
+ cards:[{id:id(),name:"Cartão principal",limit:5000,used:0}],
  transactions:[
-  {id:uid(),type:'income',status:'paid',desc:'Serviço exemplo',amount:2500,date:today(),folder:'Trabalho',account:'Conta principal',person:'Cliente Exemplo',notes:''},
-  {id:uid(),type:'expense',status:'paid',desc:'Internet',amount:120,date:today(),folder:'Casa',account:'Conta principal',person:'',notes:''},
-  {id:uid(),type:'expense',status:'pending',desc:'Energia',amount:245,date:today(),folder:'Casa',account:'Conta principal',person:'',notes:''}],
- services:[{id:uid(),client:'Cliente Exemplo',name:'Consultoria mensal',start:today(),end:today(),total:6000,billing:'installments',n:12,v:500,paid:1500,folder:'Trabalho',payments:[{date:today(),amount:500},{date:today(),amount:500},{date:today(),amount:500}]}],
- goals:[{id:uid(),name:'Reserva financeira',target:10000,current:3500,date:'2027-12-31'}]
+  {id:id(),type:"income",status:"paid",desc:"Serviço exemplo",amount:2500,date:today(),folder:"Trabalho",account:"Conta principal",person:"Cliente Exemplo",notes:""},
+  {id:id(),type:"expense",status:"paid",desc:"Internet",amount:120,date:today(),folder:"Casa",account:"Conta principal",person:"",notes:""},
+  {id:id(),type:"expense",status:"pending",desc:"Energia elétrica",amount:245,date:today(),folder:"Casa",account:"Conta principal",person:"",notes:""}
+ ],
+ services:[
+  {id:id(),client:"Cliente Exemplo",name:"Consultoria mensal",start:today(),end:today(),total:6000,billing:"installments",n:12,v:500,folder:"Trabalho",notes:"",payments:[
+   {id:id(),date:today(),amount:500,method:"PIX",note:"Parcela 1"},
+   {id:id(),date:today(),amount:500,method:"PIX",note:"Parcela 2"},
+   {id:id(),date:today(),amount:500,method:"PIX",note:"Parcela 3"}
+  ]}
+ ],
+ goals:[{id:id(),name:"Reserva financeira",target:10000,current:3500,date:"2027-12-31"}],
+ trash:[]
 };
-function save(){localStorage.setItem(KEY,JSON.stringify(D))}
-const brl=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-function fmt(d){return d?new Date(d+'T12:00:00').toLocaleDateString('pt-BR'):''}
-function txFiltered(){let p=period.value;return D.transactions.filter(x=>{let d=new Date(x.date),n=new Date();return p==='all'||(p==='year'?d.getFullYear()===n.getFullYear():d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear())})}
-function sum(a,fn){return a.filter(fn||(()=>true)).reduce((s,x)=>s+Number(x.amount||0),0)}
-const nav=[['overview','layout-dashboard','Overview'],['folders','folder-kanban','Categorias / Pastas'],['services','briefcase-business','Serviços'],['transactions','arrow-left-right','Movimentações'],['receivables','circle-dollar-sign','A receber'],['payables','receipt-text','A pagar'],['accounts','wallet-cards','Caixas & Contas'],['people','users-round','Clientes / Fornecedores'],['cards','credit-card','Cartões'],['calendar','calendar-days','Calendário'],['goals','target','Metas'],['reports','chart-no-axes-combined','Relatórios'],['settings','settings','Configurações']];
-function navRender(){navEl.innerHTML=nav.map((x,i)=>`<button class="nav w-full flex gap-3 items-center px-3 py-3 rounded-xl text-sm ${i?'':'active'}" data-tab="${x[0]}" onclick="show('${x[0]}')"><i data-lucide="${x[1]}" class="w-5"></i><span class="navtext">${x[2]}</span></button>`).join('')}
-function show(t){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.getElementById(t).classList.add('active');document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));let n=nav.find(x=>x[0]===t);title.textContent=n?.[2]||'Detalhes';sub.textContent=t==='folders'?'Organize tudo por pastas':t==='services'?'Contratos, pagamentos e parcelas':'Gestão financeira';render();if(t==='overview')setTimeout(chart,30)}
-function kpi(t,v,ic,cl=''){return `<div class="card p-5"><div class="flex justify-between"><div><span class="text-sm text-slate-500">${t}</span><div class="text-2xl font-bold mt-2 money ${cl}">${brl(v)}</div></div><div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center"><i data-lucide="${ic}" class="w-5"></i></div></div></div>`}
-function badge(x){let map={paid:['Pago/Recebido','bg-emerald-50 text-emerald-700'],pending:['Pendente','bg-amber-50 text-amber-700'],overdue:['Vencido','bg-red-50 text-red-700'],partial:['Parcial','bg-blue-50 text-blue-700'],cancelled:['Cancelado','bg-slate-100 text-slate-600']};let z=map[x.status]||map.pending;return `<span class="badge ${z[1]}">${z[0]}</span>`}
-function txTable(a){return `<div class="overflow-x-auto"><table class="table w-full"><thead><tr><th>Data</th><th>Descrição</th><th>Pasta</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody>${a.length?a.map(x=>`<tr><td>${fmt(x.date)}</td><td><b>${esc(x.desc)}</b>${x.person?`<div class="text-[11px] text-slate-400">${esc(x.person)}</div>`:''}</td><td>${esc(x.folder||'Outros')}</td><td class="font-bold ${x.type==='income'?'text-emerald-600':'text-red-600'}">${x.type==='income'?'+':'−'} ${brl(x.amount)}</td><td>${badge(x)}</td><td class="text-right whitespace-nowrap"><button onclick="editTx('${x.id}')" class="p-2 text-slate-500"><i data-lucide="pencil" class="w-4"></i></button><button onclick="duplicateTx('${x.id}')" class="p-2 text-slate-500"><i data-lucide="copy" class="w-4"></i></button><button onclick="delTx('${x.id}')" class="p-2 text-slate-500 hover:text-red-600"><i data-lucide="trash-2" class="w-4"></i></button></td></tr>`).join(''):`<tr><td colspan="6" class="text-center py-8 text-slate-400">Nenhum registro.</td></tr>`}</tbody></table></div>`}
-function renderOverview(){let a=txFiltered(),i=sum(a,x=>x.type==='income'),e=sum(a,x=>x.type==='expense'),p=sum(a,x=>x.status!=='paid'),sv=D.services.reduce((s,x)=>s+x.total,0),sp=D.services.reduce((s,x)=>s+paid(x),0);overview.innerHTML=`<div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">${kpi('Saldo do período',i-e,'wallet')}${kpi('Entradas',i,'trending-up','text-emerald-600')}${kpi('Saídas',e,'trending-down','text-red-600')}${kpi('Pendente / vencido',p,'clock','text-amber-600')}</div><div class="grid xl:grid-cols-3 gap-5 mt-5"><div class="card p-5 xl:col-span-2"><b>Fluxo financeiro</b><p class="text-xs text-slate-500">Evolução dos últimos 6 meses</p><canvas id="chartEl" height="110"></canvas></div><div class="card p-5"><b>Serviços</b><div class="mt-5 space-y-4"><div><span class="text-xs text-slate-500">Contratado</span><div class="text-xl font-bold">${brl(sv)}</div></div><div><span class="text-xs text-slate-500">Pago</span><div class="text-xl font-bold text-emerald-600">${brl(sp)}</div></div><div><span class="text-xs text-slate-500">Restante</span><div class="text-xl font-bold text-amber-600">${brl(sv-sp)}</div></div></div></div></div><div class="card mt-5 overflow-hidden"><div class="p-5"><b>Últimos lançamentos</b></div>${txTable(a.slice().reverse().slice(0,8))}</div>`}
-function renderFolders(){folders.innerHTML=`<div class="flex justify-between mb-6"><div><h2 class="text-2xl font-bold">Categorias / Pastas</h2><p class="text-slate-500">Cada pasta pode reunir pagamentos, despesas, receitas e serviços.</p></div><button onclick="openFolder()" class="btn primary">+ Nova pasta</button></div><div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">${D.folders.map(f=>{let a=D.transactions.filter(x=>x.folder===f.name),i=sum(a,x=>x.type==='income'),e=sum(a,x=>x.type==='expense'),sv=D.services.filter(x=>x.folder===f.name);return `<div class="card p-5 hover:-translate-y-1 transition cursor-pointer" onclick="folderDetail('${f.id}')"><div class="flex justify-between"><div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><i data-lucide="folder"></i></div><button onclick="event.stopPropagation();delFolder('${f.id}')" class="p-2 text-slate-400"><i data-lucide="trash-2" class="w-4"></i></button></div><h3 class="font-bold text-lg mt-4">${esc(f.name)}</h3><p class="text-xs text-slate-500">${esc(f.desc||'')}</p><div class="grid grid-cols-2 gap-3 mt-5"><div><span class="text-xs text-slate-400">Entradas</span><b class="block text-emerald-600">${brl(i)}</b></div><div><span class="text-xs text-slate-400">Saídas</span><b class="block text-red-600">${brl(e)}</b></div></div><div class="text-xs text-slate-400 mt-4 pt-4 border-t">${a.length} lançamentos • ${sv.length} serviços</div></div>`}).join('')}</div>`}
-function folderDetail(id){let f=D.folders.find(x=>x.id===id);document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));folderDetailEl.classList.add('active');title.textContent=f.name;let a=D.transactions.filter(x=>x.folder===f.name),sv=D.services.filter(x=>x.folder===f.name);folderDetailEl.innerHTML=`<button onclick="show('folders')" class="text-blue-600 text-sm mb-4">← Voltar</button><div class="flex justify-between mb-5"><div><h2 class="text-2xl font-bold">${esc(f.name)}</h2><p class="text-slate-500">${esc(f.desc||'')}</p></div><button onclick="openTx()" class="btn primary">+ Inserir pagamento</button></div><div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">${kpi('Entradas',sum(a,x=>x.type==='income'),'trending-up','text-emerald-600')}${kpi('Saídas',sum(a,x=>x.type==='expense'),'trending-down','text-red-600')}${kpi('Pendentes',sum(a,x=>x.status!=='paid'),'clock','text-amber-600')}${kpi('Lançamentos',a.length,'list-check')}</div><div class="card mt-5 overflow-hidden"><div class="p-5"><b>Pagamentos da pasta</b></div>${txTable(a.slice().reverse())}</div><div class="card p-5 mt-5"><b>Serviços</b><div class="grid md:grid-cols-2 gap-4 mt-4">${sv.map(serviceCard).join('')||'<span class="text-sm text-slate-400">Nenhum serviço.</span>'}</div></div>`;lucide.createIcons()}
-function paid(s){return Number(s.paid||0)+D.transactions.filter(x=>x.serviceId===s.id&&x.status==='paid').reduce((a,x)=>a+x.amount,0)}
-function serviceInfo(s){let p=paid(s),r=Math.max(0,s.total-p);if(s.billing==='installments'){let n=+s.n||0,v=+s.v||s.total/n||0,c=v?Math.min(n,Math.floor(p/v+1e-6)):0;return `${c} de ${n} parcelas pagas • ${Math.max(0,n-c)} restantes`}if(s.billing==='fixed'){let start=new Date(s.start),end=new Date(s.end),expected=+s.expected|| (s.freq==='weekly'?Math.floor((end-start)/6048e5)+1:Math.max(1,(end.getFullYear()-start.getFullYear())*12+end.getMonth()-start.getMonth()+1)),v=s.total/expected,c=v?Math.min(expected,Math.floor(p/v+1e-6)):0;return `${expected} datas previstas • ${c} pagas • ${Math.max(0,expected-c)} faltantes`}return p>=s.total?'Pagamento concluído':'Pagamento único'}
-function serviceCard(s){let p=paid(s),r=Math.max(0,s.total-p),pct=Math.min(100,p/s.total*100||0);return `<div class="border rounded-2xl p-5"><div class="flex justify-between"><div><span class="text-xs text-slate-500">${esc(s.client)}</span><h3 class="font-bold">${esc(s.name)}</h3></div><div><button onclick="editService('${s.id}')" class="p-2"><i data-lucide="pencil" class="w-4"></i></button><button onclick="delService('${s.id}')" class="p-2 text-slate-400"><i data-lucide="trash-2" class="w-4"></i></button></div></div><div class="grid grid-cols-3 gap-3 mt-5 text-xs"><div>Total<b class="block text-sm">${brl(s.total)}</b></div><div>Pago<b class="block text-sm text-emerald-600">${brl(p)}</b></div><div>Restante<b class="block text-sm text-amber-600">${brl(r)}</b></div></div><div class="bar mt-4"><i style="width:${pct}%;background:#10b981"></i></div><div class="flex justify-between text-xs mt-2"><span>${pct.toFixed(0)}% concluído</span><b>${serviceInfo(s)}</b></div><div class="bg-slate-50 rounded-xl p-3 mt-4 text-xs"><div class="flex justify-between"><span>${s.billing==='installments'?'Prestação / parcelas':s.billing==='fixed'?'Datas fixas':'Pagamento único'}</span><span>${fmt(s.start)} → ${fmt(s.end)}</span></div>${s.billing!=='single'?`<div class="mt-2 font-semibold ${missing(s)>0?'text-red-600':'text-emerald-600'}">${missing(s)>0?'⚠ '+missing(s)+' falta(s)':'✓ Sem faltas registradas'}</div>`:''}</div><button onclick="openPayment('${s.id}')" class="btn soft w-full mt-4">+ Registrar pagamento</button><button onclick="serviceHistory('${s.id}')" class="w-full text-xs text-blue-600 font-semibold mt-3">Ver histórico de pagamentos</button></div>`}
-function missing(s){if(s.billing==='single')return 0;let start=new Date(s.start),end=new Date(s.end),n=+s.expected|| (s.freq==='weekly'?Math.floor((end-start)/6048e5)+1:Math.max(1,(end.getFullYear()-start.getFullYear())*12+end.getMonth()-start.getMonth()+1)),v=s.total/n,c=v?Math.min(n,Math.floor(paid(s)/v+1e-6)):0;return Math.max(0,n-c)}
-function renderServices(){services.innerHTML=`<div class="flex justify-between mb-6"><div><h2 class="text-2xl font-bold">Serviços</h2><p class="text-slate-500">Controle valor total, pago, restante, parcelas e datas.</p></div><button onclick="openService()" class="btn primary">+ Novo serviço</button></div><div class="grid sm:grid-cols-3 gap-4">${kpi('Total contratado',D.services.reduce((a,x)=>a+x.total,0),'briefcase')}${kpi('Total pago',D.services.reduce((a,x)=>a+paid(x),0),'badge-check','text-emerald-600')}${kpi('Total restante',D.services.reduce((a,x)=>a+Math.max(0,x.total-paid(x)),0),'hourglass','text-amber-600')}</div><div class="grid xl:grid-cols-2 gap-4 mt-5">${D.services.map(serviceCard).join('')}</div>`}
-function serviceHistory(id){let s=D.services.find(x=>x.id===id),p=(s.payments||[]).concat(D.transactions.filter(x=>x.serviceId===id).map(x=>({date:x.date,amount:x.amount,method:x.method||'Lançamento'})));alert('HISTÓRICO — '+s.name+'\\n\\n'+(p.length?p.map((x,i)=>`${i+1}. ${fmt(x.date)} — ${brl(x.amount)} — ${x.method||'Pagamento'}`).join('\\n'):'Nenhum pagamento registrado.'))}
-function renderTransactions(){transactions.innerHTML=`<div class="flex justify-between mb-5"><div><h2 class="text-2xl font-bold">Movimentações</h2><p class="text-slate-500">Adicionar, editar, duplicar, excluir e filtrar.</p></div><button onclick="openTx()" class="btn primary">+ Novo</button></div><div class="card overflow-hidden">${txTable(txFiltered().slice().reverse())}</div>`}
-function renderReceivables(){let a=D.transactions.filter(x=>x.type==='income'&&x.status!=='paid');receivables.innerHTML=sectionPage('A receber','Entradas pendentes, parciais e vencidas.',a,'income')}
-function renderPayables(){let a=D.transactions.filter(x=>x.type==='expense'&&x.status!=='paid');payables.innerHTML=sectionPage('A pagar','Despesas pendentes, parciais e vencidas.',a,'expense')}
-function sectionPage(t,d,a,type){return `<div class="flex justify-between mb-5"><div><h2 class="text-2xl font-bold">${t}</h2><p class="text-slate-500">${d}</p></div><button onclick="openTx('${type}')" class="btn primary">+ Adicionar</button></div><div class="grid sm:grid-cols-3 gap-4 mb-5">${kpi('Em aberto',sum(a),'circle-dollar-sign',type==='income'?'text-emerald-600':'text-red-600')}${kpi('Vencido',sum(a,x=>x.status==='overdue'),'triangle-alert','text-red-600')}${kpi('Quantidade',a.length,'list-check')}</div><div class="card overflow-hidden">${txTable(a.slice().reverse())}</div>`}
-function renderAccounts(){accounts.innerHTML=`<div class="flex justify-between mb-5"><div><h2 class="text-2xl font-bold">Caixas & Contas</h2><p class="text-slate-500">Bancos, caixas e saldos.</p></div><button onclick="addAccount()" class="btn primary">+ Nova conta</button></div><div class="grid md:grid-cols-3 gap-4">${D.accounts.map(a=>`<div class="card p-5"><div class="flex justify-between"><div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><i data-lucide="wallet"></i></div><button onclick="delAccount('${a.id}')" class="text-slate-400"><i data-lucide="trash-2" class="w-4"></i></button></div><span class="text-xs text-slate-500 block mt-4">${a.type}</span><b class="text-lg">${esc(a.name)}</b><div class="text-2xl font-bold mt-2">${brl(a.balance)}</div></div>`).join('')}</div>`}
-function renderPeople(){people.innerHTML=`<div class="flex justify-between mb-5"><div><h2 class="text-2xl font-bold">Clientes / Fornecedores</h2><p class="text-slate-500">Cadastre pessoas e empresas para vincular aos lançamentos.</p></div><button onclick="addPerson()" class="btn primary">+ Novo contato</button></div><div class="grid md:grid-cols-3 gap-4">${D.people.map(p=>`<div class="card p-5"><div class="flex justify-between"><div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center"><i data-lucide="user-round"></i></div><button onclick="delPerson('${p.id}')" class="text-slate-400"><i data-lucide="trash-2" class="w-4"></i></button></div><b class="block mt-4">${esc(p.name)}</b><span class="text-xs text-slate-500">${p.kind}</span><div class="text-xs text-slate-400 mt-3">${esc(p.phone||'Sem telefone')} • ${esc(p.email||'Sem e-mail')}</div></div>`).join('')}</div>`}
-function renderCards(){cards.innerHTML=`<div class="flex justify-between mb-5"><div><h2 class="text-2xl font-bold">Cartões</h2><p class="text-slate-500">Limite, utilização e disponível.</p></div><button onclick="addCard()" class="btn primary">+ Novo cartão</button></div><div class="grid md:grid-cols-3 gap-4">${D.cards.map(c=>`<div class="card p-5"><div class="flex justify-between"><i data-lucide="credit-card"></i><button onclick="delCard('${c.id}')" class="text-slate-400"><i data-lucide="trash-2" class="w-4"></i></button></div><b class="block mt-5">${esc(c.name)}</b><span class="text-xs text-slate-500">Limite ${brl(c.limit)}</span><div class="text-2xl font-bold mt-2">${brl(c.used)}</div><div class="bar mt-3"><i style="width:${Math.min(100,c.used/c.limit*100||0)}%;background:#2563eb"></i></div><div class="text-xs text-slate-500 mt-2">Disponível ${brl(Math.max(0,c.limit-c.used))}</div></div>`).join('')}</div>`}
-function renderGoals(){goals.innerHTML=`<div class="flex justify-between mb-5"><div><h2 class="text-2xl font-bold">Metas financeiras</h2><p class="text-slate-500">Acompanhe objetivos e evolução.</p></div><button onclick="addGoal()" class="btn primary">+ Nova meta</button></div><div class="grid md:grid-cols-2 gap-4">${D.goals.map(g=>{let p=Math.min(100,g.current/g.target*100);return `<div class="card p-5"><div class="flex justify-between"><b>${esc(g.name)}</b><button onclick="delGoal('${g.id}')" class="text-slate-400"><i data-lucide="trash-2" class="w-4"></i></button></div><div class="grid grid-cols-3 mt-5 text-sm"><div>Objetivo<b class="block">${brl(g.target)}</b></div><div>Atual<b class="block text-emerald-600">${brl(g.current)}</b></div><div>Restante<b class="block text-amber-600">${brl(Math.max(0,g.target-g.current))}</b></div></div><div class="bar mt-5"><i style="width:${p}%;background:#10b981"></i></div><div class="text-xs text-slate-500 mt-2">${p.toFixed(0)}% • prazo ${fmt(g.date)}</div><button onclick="addToGoal('${g.id}')" class="btn soft mt-4 w-full">+ Adicionar valor</button></div>`}).join('')}</div>`}
-function renderCalendar(){let n=new Date(),y=n.getFullYear(),m=n.getMonth(),days=new Date(y,m+1,0).getDate();let cells='';for(let d=1;d<=days;d++){let ds=new Date(y,m,d).toISOString().slice(0,10),a=D.transactions.filter(x=>x.date===ds);cells+=`<div class="border rounded-xl min-h-24 p-2"><b class="text-xs">${d}</b>${a.slice(0,3).map(x=>`<div class="text-[10px] mt-1 rounded px-1 ${x.type==='income'?'bg-emerald-50 text-emerald-700':'bg-red-50 text-red-700'}">${x.type==='income'?'+':'−'}${brl(x.amount)}</div>`).join('')}</div>`}calendar.innerHTML=`<div class="mb-5"><h2 class="text-2xl font-bold">Calendário financeiro</h2><p class="text-slate-500">${n.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}</p></div><div class="grid grid-cols-4 sm:grid-cols-7 gap-2">${cells}</div>`}
-function renderReports(){let a=txFiltered(),i=sum(a,x=>x.type==='income'),e=sum(a,x=>x.type==='expense');reports.innerHTML=`<div class="mb-5"><h2 class="text-2xl font-bold">Relatórios</h2><p class="text-slate-500">Análise por período.</p></div><div class="grid md:grid-cols-3 gap-4">${kpi('Entradas',i,'trending-up','text-emerald-600')}${kpi('Saídas',e,'trending-down','text-red-600')}${kpi('Resultado',i-e,'sigma')}</div><div class="card p-5 mt-5"><b>Despesas por pasta</b>${D.folders.map(f=>{let v=sum(a,x=>x.type==='expense'&&x.folder===f.name);return `<div class="mt-4"><div class="flex justify-between text-sm"><span>${esc(f.name)}</span><b>${brl(v)}</b></div><div class="bar mt-2"><i style="width:${Math.min(100,v/(e||1)*100)}%;background:#64748b"></i></div></div>`}).join('')}</div>`}
-function renderSettings(){settings.innerHTML=`<div class="mb-5"><h2 class="text-2xl font-bold">Configurações</h2><p class="text-slate-500">Base preparada para a conexão com Supabase.</p></div><div class="card p-6 max-w-2xl"><b>Arquitetura futura</b><div class="grid md:grid-cols-2 gap-3 mt-5 text-sm"><div class="p-3 bg-slate-50 rounded-xl"><b>Banco</b><br>Supabase / PostgreSQL</div><div class="p-3 bg-slate-50 rounded-xl"><b>Identificação</b><br>UUID + user_id</div><div class="p-3 bg-slate-50 rounded-xl"><b>Tabelas</b><br>Prefixo fin_</div><div class="p-3 bg-slate-50 rounded-xl"><b>Segurança</b><br>RLS por usuário</div></div></div>`}
-function render(){renderOverview();renderFolders();renderServices();renderTransactions();renderReceivables();renderPayables();renderAccounts();renderPeople();renderCards();renderCalendar();renderGoals();renderReports();renderSettings();lucide.createIcons()}
-function openTx(type){fill();txForm.reset();txId.value='';txDate.value=today();txType.value=type||'income';txStatus.value='paid';txTitle.textContent=type==='expense'?'Nova saída':'Novo lançamento';openM('txModal')}
-function editTx(id){let x=D.transactions.find(a=>a.id===id);openTx(x.type);setTimeout(()=>{txId.value=x.id;txStatus.value=x.status;txDesc.value=x.desc;txAmount.value=x.amount;txDate.value=x.date;txFolder.value=x.folder;txAccount.value=x.account;txPerson.value=x.person||'';txNotes.value=x.notes||'';txTitle.textContent='Editar lançamento'},20)}
-txForm.onsubmit=e=>{e.preventDefault();let o={id:txId.value||uid(),type:txType.value,status:txStatus.value,desc:txDesc.value,amount:+txAmount.value,date:txDate.value,folder:txFolder.value,account:txAccount.value,person:txPerson.value,notes:txNotes.value};let i=D.transactions.findIndex(x=>x.id===o.id);i>=0?D.transactions[i]=o:D.transactions.push(o);save();closeM('txModal');render()}
-function delTx(id){if(confirm('Excluir este lançamento?')){D.transactions=D.transactions.filter(x=>x.id!==id);save();render()}}
-function duplicateTx(id){let x=D.transactions.find(a=>a.id===id);D.transactions.push({...x,id:uid(),desc:x.desc+' (cópia)'});save();render()}
-function fill(){txFolder.innerHTML=D.folders.map(x=>`<option>${esc(x.name)}</option>`).join('');txAccount.innerHTML=D.accounts.map(x=>`<option>${esc(x.name)}</option>`).join('');svFolder.innerHTML=D.folders.map(x=>`<option>${esc(x.name)}</option>`).join('')}
-function openFolder(){folderForm.reset();openM('folderModal')}folderForm.onsubmit=e=>{e.preventDefault();D.folders.push({id:uid(),name:fdName.value,desc:fdDesc.value,type:fdType.value});save();closeM('folderModal');render()}
-function delFolder(id){let f=D.folders.find(x=>x.id===id);if(confirm('Excluir a pasta '+f.name+'? Os lançamentos serão preservados.')){D.folders=D.folders.filter(x=>x.id!==id);save();render()}}
-function addAccount(){let n=prompt('Nome da conta/caixa:');if(n){D.accounts.push({id:uid(),name:n,type:'Banco',balance:0});save();render()}}
-function delAccount(id){if(confirm('Excluir conta?')){D.accounts=D.accounts.filter(x=>x.id!==id);save();render()}}
-function addPerson(){let n=prompt('Nome do cliente/fornecedor:');if(n){let k=prompt('Tipo: Cliente ou Fornecedor','Cliente')||'Cliente';D.people.push({id:uid(),name:n,kind:k});save();render()}}
-function delPerson(id){if(confirm('Excluir contato?')){D.people=D.people.filter(x=>x.id!==id);save();render()}}
-function addCard(){let n=prompt('Nome do cartão:'),l=Number(prompt('Limite:')||0);if(n){D.cards.push({id:uid(),name:n,limit:l,used:0});save();render()}}
-function delCard(id){if(confirm('Excluir cartão?')){D.cards=D.cards.filter(x=>x.id!==id);save();render()}}
-function openService(){fill();serviceForm.reset();svId.value='';svStart.value=today();svEnd.value=today();svTitle.textContent='Novo serviço';billingUI();openM('serviceModal')}
-function billingUI(){inst.classList.toggle('hidden',svBilling.value!=='installments');fixed.classList.toggle('hidden',svBilling.value!=='fixed')}
-serviceForm.onsubmit=e=>{e.preventDefault();let old=D.services.find(x=>x.id===svId.value);let o={id:svId.value||uid(),client:svClient.value,name:svName.value,start:svStart.value,end:svEnd.value,total:+svTotal.value,billing:svBilling.value,n:+svN.value||0,v:+svV.value||0,freq:svFreq.value,day:+svDay.value||0,expected:+svExpected.value||0,folder:svFolder.value,notes:svNotes.value,paid:old?.paid||0,payments:old?.payments||[]};let i=D.services.findIndex(x=>x.id===o.id);i>=0?D.services[i]=o:D.services.push(o);save();closeM('serviceModal');render()}
-function editService(id){let s=D.services.find(x=>x.id===id);openService();setTimeout(()=>{svId.value=s.id;svClient.value=s.client;svName.value=s.name;svStart.value=s.start;svEnd.value=s.end;svTotal.value=s.total;svBilling.value=s.billing;svN.value=s.n||'';svV.value=s.v||'';svFreq.value=s.freq||'monthly';svDay.value=s.day||'';svExpected.value=s.expected||'';svFolder.value=s.folder;svNotes.value=s.notes||'';billingUI();svTitle.textContent='Editar serviço'},20)}
-function delService(id){if(confirm('Excluir serviço?')){D.services=D.services.filter(x=>x.id!==id);save();render()}}
-function openPayment(id){payService.value=id;payDate.value=today();payAmount.value='';openM('payModal')}
-payForm.onsubmit=e=>{e.preventDefault();let s=D.services.find(x=>x.id===payService.value),v=+payAmount.value;if(v<=0)return;let p=s.payments||[];p.push({date:payDate.value,amount:v,method:payMethod.value,note:payNote.value});s.payments=p;s.paid=Number(s.paid||0)+v;save();closeM('payModal');render()}
-function addGoal(){let n=prompt('Nome da meta:'),t=Number(prompt('Valor objetivo:')||0);if(n&&t)D.goals.push({id:uid(),name:n,target:t,current:0,date:today()});save();render()}
-function addToGoal(id){let g=D.goals.find(x=>x.id===id),v=Number(prompt('Valor a adicionar:')||0);if(v>0){g.current+=v;save();render()}}
-function delGoal(id){if(confirm('Excluir meta?')){D.goals=D.goals.filter(x=>x.id!==id);save();render()}}
-function closeM(id){document.getElementById(id).classList.add('hidden');document.getElementById(id).classList.remove('flex')}
-function openM(id){document.getElementById(id).classList.remove('hidden');document.getElementById(id).classList.add('flex');lucide.createIcons()}
-function chart(){let c=document.getElementById('chartEl');if(!c)return;if(window.ch)ch.destroy();let labs=[],a=[],b=[],n=new Date();for(let i=5;i>=0;i--){let d=new Date(n.getFullYear(),n.getMonth()-i,1);labs.push(d.toLocaleDateString('pt-BR',{month:'short'}));let z=D.transactions.filter(x=>{let q=new Date(x.date);return q.getMonth()===d.getMonth()&&q.getFullYear()===d.getFullYear()});a.push(sum(z,x=>x.type==='income'));b.push(sum(z,x=>x.type==='expense'))}ch=new Chart(c,{type:'line',data:{labels:labs,datasets:[{label:'Entradas',data:a,tension:.35,borderWidth:3},{label:'Saídas',data:b,tension:.35,borderWidth:3}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}})}
-period.onchange=render;navRender();render();
-</script></body></html>
+
+let db=load();
+let currentPage="overview";
+let txSearch="";
+let serviceSearch="";
+
+function load(){
+ try{
+  const raw=localStorage.getItem(KEY);
+  if(!raw)return structuredClone(defaults);
+  const x=JSON.parse(raw);
+  return Object.assign(structuredClone(defaults),x,{trash:x.trash||[]});
+ }catch(e){return structuredClone(defaults)}
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+function sum(arr,fn){return arr.reduce((s,x)=>s+(fn?fn(x):Number(x.amount||0)),0)}
+function periodTx(){
+ const p=$("period").value,n=new Date();
+ return db.transactions.filter(x=>{
+  if(p==="all")return true;
+  const d=new Date(x.date+"T12:00:00");
+  return p==="year"?d.getFullYear()===n.getFullYear():d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth();
+ });
+}
+function statusBadge(s){
+ const m={paid:["Pago/Recebido","paid"],pending:["Pendente","pending"],overdue:["Vencido","overdue"],partial:["Parcial","partial"],cancelled:["Cancelado","cancelled"]};
+ const z=m[s]||m.pending;return '<span class="badge '+z[1]+'">'+z[0]+"</span>";
+}
+function page(id){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ $(id).classList.add("active");
+ document.querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.page===id));
+ const names={
+ overview:["Overview","Sua visão financeira"],transactions:["Movimentações","Entradas, saídas e pagamentos"],
+ receivables:["A receber","Valores pendentes de recebimento"],payables:["A pagar","Contas e despesas pendentes"],
+ folders:["Categorias / Pastas","Organize seus lançamentos"],services:["Serviços","Contratos, parcelas e recebimentos"],
+ people:["Clientes / Fornecedores","Pessoas e empresas"],accounts:["Caixas & Contas","Bancos, caixas e saldos"],
+ cards:["Cartões","Limites e utilização"],calendar:["Calendário","Visão por datas"],goals:["Metas","Objetivos financeiros"],
+ reports:["Relatórios","Análises e indicadores"],settings:["Configurações","Dados locais e preparação para Supabase"]
+ };
+ $("pageTitle").textContent=names[id][0];$("pageSub").textContent=names[id][1];currentPage=id;renderAll();
+ if(window.innerWidth<761)$("sidebar").classList.remove("open");
+}
+function kpi(label,value,cls){
+ return '<div class="card kpi"><div class="label">'+label+'</div><div class="value '+(cls||"")+'">'+money(value)+"</div></div>";
+}
+
+function renderOverview(){
+ const a=periodTx(),inc=sum(a,x=>x.type==="income"),out=sum(a,x=>x.type==="expense");
+ const open=sum(a,x=>x.status!=="paid"&&x.status!=="cancelled");
+ const servicesTotal=sum(db.services,x=>x.total),servicesPaid=sum(db.services,x=>servicePaid(x));
+ const overdue=a.filter(x=>x.status==="overdue");
+ $("overview").innerHTML=
+ '<div class="grid g4">'+kpi("Saldo do período",inc-out,"blue")+kpi("Entradas",inc,"green")+kpi("Saídas",out,"red")+kpi("Em aberto",open,"amber")+'</div>'+
+ '<div class="grid g2" style="margin-top:16px"><div class="card"><b>Fluxo dos últimos 6 meses</b><div class="smalltext muted">Entradas x saídas</div>'+simpleChart()+'</div>'+
+ '<div class="card"><b>Resumo dos serviços</b><div class="list" style="margin-top:10px">'+
+ '<div class="listrow"><span>Total contratado</span><b>'+money(servicesTotal)+'</b></div>'+
+ '<div class="listrow"><span>Total recebido</span><b class="green">'+money(servicesPaid)+'</b></div>'+
+ '<div class="listrow"><span>Restante</span><b class="amber">'+money(Math.max(0,servicesTotal-servicesPaid))+'</b></div>'+
+ '<div class="listrow"><span>Vencidos</span><b class="red">'+overdue.length+'</b></div></div></div></div>'+
+ '<div class="card" style="margin-top:16px"><div class="toolbar"><div><b>Últimos lançamentos</b><div class="smalltext muted">Período selecionado</div></div><button class="btn primary small" data-action="new-tx">+ Adicionar</button></div>'+txTable(a.slice().reverse().slice(0,8))+"</div>";
+}
+function simpleChart(){
+ const n=new Date(),arr=[];
+ for(let i=5;i>=0;i--){const d=new Date(n.getFullYear(),n.getMonth()-i,1);const z=db.transactions.filter(x=>{const q=new Date(x.date+"T12:00:00");return q.getMonth()===d.getMonth()&&q.getFullYear()===d.getFullYear()});arr.push({l:d.toLocaleDateString("pt-BR",{month:"short"}),i:sum(z,x=>x.type==="income"),o:sum(z,x=>x.type==="expense")})}
+ const max=Math.max(1,...arr.flatMap(x=>[x.i,x.o]));
+ return '<div class="chart">'+arr.map(x=>'<div class="barcol"><div style="width:100%;display:flex;align-items:end;justify-content:center;height:100%;gap:3px"><div class="bar" title="Entrada '+money(x.i)+'" style="height:'+Math.max(2,x.i/max*90)+'%;background:#059669"></div><div class="bar" title="Saída '+money(x.o)+'" style="height:'+Math.max(2,x.o/max*90)+'%;background:#dc2626"></div></div><small>'+esc(x.l)+'</small></div>').join("")+"</div>";
+}
+function txTable(arr){
+ if(!arr.length)return '<div class="empty">Nenhum lançamento encontrado.</div>';
+ return '<div class="table-wrap"><table class="table"><thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Categoria</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody>'+
+ arr.map(x=>'<tr><td>'+dateBR(x.date)+'</td><td><b>'+esc(x.desc)+'</b>'+(x.person?'<div class="smalltext muted">'+esc(x.person)+'</div>':"")+'</td><td>'+(x.type==="income"?"Entrada":"Saída")+'</td><td>'+esc(x.folder||"Outros")+'</td><td class="'+(x.type==="income"?"green":"red")+'"><b>'+(x.type==="income"?"+":"−")+money(x.amount)+'</b></td><td>'+statusBadge(x.status)+'</td><td><div class="actions"><button class="btn small" data-action="edit-tx" data-id="'+x.id+'">Editar</button><button class="btn small" data-action="duplicate-tx" data-id="'+x.id+'">Duplicar</button><button class="btn small danger" data-action="delete-tx" data-id="'+x.id+'">Excluir</button></div></td></tr>').join("")+"</tbody></table></div>";
+}
+function renderTransactions(){
+ const a=periodTx().filter(x=>!txSearch||[x.desc,x.folder,x.person].join(" ").toLowerCase().includes(txSearch.toLowerCase()));
+ $("transactions").innerHTML='<div class="toolbar"><div><h2>Movimentações</h2><p>Controle completo de entradas e saídas.</p></div><button class="btn primary" data-action="new-tx">+ Novo lançamento</button></div>'+
+ '<div class="card" style="margin-bottom:16px"><div class="filters"><input id="txSearch" class="input" placeholder="Pesquisar descrição, pessoa ou pasta..." value="'+esc(txSearch)+'"><select id="txTypeFilter" class="input"><option value="">Todos os tipos</option><option value="income">Entradas</option><option value="expense">Saídas</option></select><select id="txStatusFilter" class="input"><option value="">Todos os status</option><option value="paid">Pagos</option><option value="pending">Pendentes</option><option value="overdue">Vencidos</option><option value="partial">Parciais</option></select></div></div>'+
+ '<div class="card">'+txTable(a)+"</div>";
+ const sf=$("txSearch");if(sf)sf.oninput=()=>{txSearch=sf.value;renderTransactions()};
+}
+function renderOpen(type){
+ const a=db.transactions.filter(x=>x.type===type&&x.status!=="paid"&&x.status!=="cancelled");
+ const total=sum(a);
+ const title=type==="income"?"A receber":"A pagar";
+ $(type==="income"?"receivables":"payables").innerHTML='<div class="toolbar"><div><h2>'+title+'</h2><p>'+ (type==="income"?"Valores que ainda precisam ser recebidos.":"Contas que ainda precisam ser pagas.")+'</p></div><button class="btn primary" data-action="new-tx" data-type="'+type+'">+ Adicionar</button></div>'+
+ '<div class="grid g3">'+kpi("Total em aberto",total,type==="income"?"green":"red")+kpi("Vencidos",sum(a,x=>x.status==="overdue"),"red")+kpi("Quantidade",a.length,"blue")+'</div><div class="card" style="margin-top:16px">'+txTable(a.slice().reverse())+"</div>";
+}
+function renderFolders(){
+ $("folders").innerHTML='<div class="toolbar"><div><h2>Categorias / Pastas</h2><p>Crie pastas e acompanhe tudo o que foi lançado dentro delas.</p></div><button class="btn primary" data-action="new-folder">+ Nova pasta</button></div><div class="folder-grid">'+
+ db.folders.map(f=>{const a=db.transactions.filter(x=>x.folder===f.name),inc=sum(a,x=>x.type==="income"),out=sum(a,x=>x.type==="expense"),sv=db.services.filter(x=>x.folder===f.name);
+ return '<div class="card"><div style="display:flex;justify-content:space-between"><div class="folder-icon">▣</div><div class="actions"><button class="btn small" data-action="edit-folder" data-id="'+f.id+'">Editar</button><button class="btn small danger" data-action="delete-folder" data-id="'+f.id+'">Excluir</button></div></div><h3>'+esc(f.name)+'</h3><p class="smalltext muted">'+esc(f.desc||"")+'</p><div class="grid g2" style="margin-top:15px"><div><span class="smalltext muted">Entradas</span><b class="green" style="display:block">'+money(inc)+'</b></div><div><span class="smalltext muted">Saídas</span><b class="red" style="display:block">'+money(out)+'</b></div></div><div class="smalltext muted" style="margin-top:15px">'+a.length+' lançamentos • '+sv.length+' serviços</div><button class="btn" style="width:100%;margin-top:12px" data-action="folder-detail" data-id="'+f.id+'">Abrir pasta</button></div>'
+ }).join("")+"</div>";
+}
+function renderServices(){
+ const list=db.services.filter(s=>!serviceSearch||[s.name,s.client].join(" ").toLowerCase().includes(serviceSearch.toLowerCase()));
+ const total=sum(db.services,x=>x.total),paid=sum(db.services,x=>servicePaid(x));
+ $("services").innerHTML='<div class="toolbar"><div><h2>Serviços</h2><p>Controle contratos, parcelas, datas, pagamentos e valores restantes.</p></div><button class="btn primary" data-action="new-service">+ Novo serviço</button></div>'+
+ '<div class="grid g3">'+kpi("Total contratado",total,"blue")+kpi("Total recebido",paid,"green")+kpi("Total restante",Math.max(0,total-paid),"amber")+'</div>'+
+ '<div class="card" style="margin:16px 0"><input id="serviceSearch" class="input" placeholder="Pesquisar serviço ou cliente..." value="'+esc(serviceSearch)+'"></div>'+
+ '<div class="service-grid">'+list.map(serviceCard).join("")+'</div>';
+ const s=$("serviceSearch");if(s)s.oninput=()=>{serviceSearch=s.value;renderServices()};
+}
+function servicePaid(s){return sum(s.payments||[],p=>Number(p.amount||0))}
+function expectedCount(s){
+ if(s.billing==="installments")return Number(s.n||0);
+ if(s.billing==="fixed"&&s.expected)return Number(s.expected);
+ if(s.billing==="fixed"){
+  const a=new Date(s.start+"T12:00:00"),b=new Date(s.end+"T12:00:00");
+  if(s.freq==="weekly")return Math.floor((b-a)/604800000)+1;
+  return Math.max(1,(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth()+1);
+ }
+ return 1;
+}
+function serviceCard(s){
+ const p=servicePaid(s),r=Math.max(0,s.total-p),pct=s.total?Math.min(100,p/s.total*100):0,n=expectedCount(s),v=n?s.total/n:s.total,paidN=s.billing==="single"?(p>=s.total?1:0):Math.min(n,Math.floor(p/(v||1)+1e-7)),missing=Math.max(0,n-paidN);
+ return '<div class="card service-card"><div style="display:flex;justify-content:space-between;gap:10px"><div><span class="smalltext muted">'+esc(s.client)+'</span><h3>'+esc(s.name)+'</h3></div><div class="actions"><button class="btn small" data-action="edit-service" data-id="'+s.id+'">Editar</button><button class="btn small danger" data-action="delete-service" data-id="'+s.id+'">Excluir</button></div></div>'+
+ '<div class="service-meta"><div>Total<b>'+money(s.total)+'</b></div><div>Pago<b class="green">'+money(p)+'</b></div><div>Restante<b class="amber">'+money(r)+'</b></div></div><div class="progress"><span style="width:'+pct+'%"></span></div>'+
+ '<div style="display:flex;justify-content:space-between;margin-top:7px;font-size:11px"><span>'+pct.toFixed(0)+'% recebido</span><b class="'+(missing?"red":"green")+'">'+(s.billing==="installments"?paidN+" de "+n+" parcelas pagas":s.billing==="fixed"?n+" datas • "+missing+" faltantes":p>=s.total?"Concluído":"Pendente")+'</b></div>'+
+ '<div class="smalltext muted" style="margin-top:12px">'+dateBR(s.start)+' → '+dateBR(s.end)+'</div>'+
+ '<div style="display:flex;gap:7px;margin-top:14px"><button class="btn" style="flex:1" data-action="payment" data-id="'+s.id+'">+ Registrar pagamento</button><button class="btn" data-action="history" data-id="'+s.id+'">Histórico</button></div></div>';
+}
+function renderPeople(){
+ $("people").innerHTML='<div class="toolbar"><div><h2>Clientes / Fornecedores</h2><p>Cadastre pessoas e empresas para vincular aos lançamentos.</p></div><button class="btn primary" data-action="new-person">+ Novo contato</button></div><div class="person-grid">'+
+ db.people.map(p=>'<div class="card"><div style="display:flex;justify-content:space-between"><div class="folder-icon">♙</div><button class="btn small danger" data-action="delete-person" data-id="'+p.id+'">Excluir</button></div><h3>'+esc(p.name)+'</h3><span class="badge '+(p.kind==="Cliente"?"partial":"pending")+'">'+esc(p.kind)+'</span><p class="smalltext muted">'+esc(p.phone||"Sem telefone")+'<br>'+esc(p.email||"Sem e-mail")+'</p></div>').join("")+"</div>";
+}
+function renderAccounts(){
+ $("accounts").innerHTML='<div class="toolbar"><div><h2>Caixas & Contas</h2><p>Controle bancos, dinheiro em caixa e saldos.</p></div><button class="btn primary" data-action="new-account">+ Nova conta</button></div><div class="account-grid">'+db.accounts.map(a=>{
+ const tx=db.transactions.filter(x=>x.account===a.name&&x.status==="paid"),inV=sum(tx,x=>x.type==="income"),outV=sum(tx,x=>x.type==="expense");
+ return '<div class="card"><div style="display:flex;justify-content:space-between"><div class="folder-icon">▤</div><button class="btn small danger" data-action="delete-account" data-id="'+a.id+'">Excluir</button></div><span class="smalltext muted">'+esc(a.type)+'</span><h3>'+esc(a.name)+'</h3><div class="value" style="font-size:22px;font-weight:800">'+money(Number(a.balance||0)+inV-outV)+'</div><div class="smalltext muted" style="margin-top:8px">Entradas '+money(inV)+' • Saídas '+money(outV)+'</div></div>'
+ }).join("")+'</div>';
+}
+function renderCards(){
+ $("cards").innerHTML='<div class="toolbar"><div><h2>Cartões</h2><p>Limite, utilização e disponível.</p></div><button class="btn primary" data-action="new-card">+ Novo cartão</button></div><div class="account-grid">'+db.cards.map(c=>{
+ const pct=c.limit?Math.min(100,c.used/c.limit*100):0;
+ return '<div class="card"><div style="display:flex;justify-content:space-between"><b>▱</b><button class="btn small danger" data-action="delete-card" data-id="'+c.id+'">Excluir</button></div><h3>'+esc(c.name)+'</h3><div class="smalltext muted">Limite '+money(c.limit)+'</div><div style="font-size:24px;font-weight:800;margin:8px 0">'+money(c.used)+'</div><div class="progress"><span style="width:'+pct+'%;background:#2563eb"></span></div><div class="smalltext muted" style="margin-top:6px">Disponível '+money(Math.max(0,c.limit-c.used))+'</div></div>'
+ }).join("")+'</div>';
+}
+function renderCalendar(){
+ const n=new Date(),y=n.getFullYear(),m=n.getMonth(),days=new Date(y,m+1,0).getDate(),first=new Date(y,m,1).getDay();
+ let out="";for(let i=0;i<first;i++)out+='<div></div>';
+ for(let d=1;d<=days;d++){const ds=new Date(y,m,d).toISOString().slice(0,10),a=db.transactions.filter(x=>x.date===ds);out+='<div class="day"><b>'+d+'</b>'+a.map(x=>'<div class="event '+(x.type==="income"?"in":"out")+'">'+(x.type==="income"?"+":"−")+money(x.amount)+'</div>').join("")+'</div>'}
+ $("calendar").innerHTML='<div class="toolbar"><div><h2>Calendário financeiro</h2><p>'+n.toLocaleDateString("pt-BR",{month:"long",year:"numeric"})+'</p></div></div><div class="calendar">'+out+"</div>";
+}
+function renderGoals(){
+ $("goals").innerHTML='<div class="toolbar"><div><h2>Metas financeiras</h2><p>Objetivos de economia e acompanhamento.</p></div><button class="btn primary" data-action="new-goal">+ Nova meta</button></div><div class="grid g2">'+db.goals.map(g=>{const p=g.target?Math.min(100,g.current/g.target*100):0;return '<div class="card"><div style="display:flex;justify-content:space-between"><b>'+esc(g.name)+'</b><button class="btn small danger" data-action="delete-goal" data-id="'+g.id+'">Excluir</button></div><div class="grid g3" style="margin-top:17px"><div class="smalltext muted">Objetivo<b style="display:block;color:#172033">'+money(g.target)+'</b></div><div class="smalltext muted">Atual<b class="green" style="display:block">'+money(g.current)+'</b></div><div class="smalltext muted">Restante<b class="amber" style="display:block">'+money(Math.max(0,g.target-g.current))+'</b></div></div><div class="progress" style="margin-top:16px"><span style="width:'+p+'%"></span></div><div class="smalltext muted" style="margin-top:6px">'+p.toFixed(0)+'% • prazo '+dateBR(g.date)+'</div><button class="btn" style="width:100%;margin-top:13px" data-action="goal-add" data-id="'+g.id+'">+ Adicionar valor</button></div>'}).join("")+'</div>';
+}
+function renderReports(){
+ const a=periodTx(),inc=sum(a,x=>x.type==="income"),out=sum(a,x=>x.type==="expense");
+ $("reports").innerHTML='<div class="toolbar"><div><h2>Relatórios</h2><p>Indicadores do período selecionado.</p></div><button class="btn" data-action="export-csv">Exportar CSV</button></div><div class="grid g4">'+kpi("Entradas",inc,"green")+kpi("Saídas",out,"red")+kpi("Resultado",inc-out,"blue")+kpi("Lançamentos",a.length,"purple")+'</div><div class="card" style="margin-top:16px"><b>Despesas por pasta</b>'+db.folders.map(f=>{const v=sum(a,x=>x.type==="expense"&&x.folder===f.name);const pct=out?v/out*100:0;return '<div style="margin-top:14px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+esc(f.name)+'</span><b>'+money(v)+'</b></div><div class="progress" style="margin-top:5px"><span style="width:'+pct+'%;background:#64748b"></span></div></div>'}).join("")+'</div>';
+}
+function renderSettings(){
+ $("settings").innerHTML='<div class="toolbar"><div><h2>Configurações</h2><p>Dados locais e preparação para banco de dados.</p></div></div><div class="grid g2"><div class="card"><h3>Banco atual</h3><p class="smalltext muted">Esta versão funciona localmente no navegador. Nenhuma senha ou chave de banco está embutida.</p><div class="notice">Próxima etapa: conectar este mesmo modelo ao Supabase usando tabelas com prefixo <b>fin_</b> e RLS por usuário.</div></div><div class="card"><h3>Backup</h3><p class="smalltext muted">Exporte seus dados para guardar uma cópia ou importar futuramente.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-action="backup">Baixar backup JSON</button><button class="btn" data-action="restore">Restaurar JSON</button><button class="btn danger" data-action="reset">Restaurar demonstração</button></div></div><div class="card"><h3>Lixeira</h3><p class="smalltext muted">'+db.trash.length+' registro(s) excluído(s).</p><button class="btn" data-action="empty-trash">Esvaziar lixeira</button></div></div>';
+}
+function renderAll(){
+ renderOverview();renderTransactions();renderOpen("income");renderOpen("expense");renderFolders();renderServices();renderPeople();renderAccounts();renderCards();renderCalendar();renderGoals();renderReports();renderSettings();
+}
+function openModal(name){$(name).classList.add("open")}
+function closeModal(name){$(name).classList.remove("open")}
+function fillSelects(){
+ $("txFolder").innerHTML=db.folders.map(x=>'<option value="'+esc(x.name)+'">'+esc(x.name)+'</option>').join("");
+ $("txAccount").innerHTML=db.accounts.map(x=>'<option value="'+esc(x.name)+'">'+esc(x.name)+'</option>').join("");
+ $("serviceFolder").innerHTML=db.folders.map(x=>'<option value="'+esc(x.name)+'">'+esc(x.name)+'</option>').join("");
+}
+function resetTx(type){
+ $("txForm").reset();$("txId").value="";$("txDate").value=today();$("txType").value=type||"income";$("txStatus").value="paid";fillSelects();$("txModalTitle").textContent="Novo lançamento";openModal("txModal");
+}
+function editTx(i){
+ const x=db.transactions.find(a=>a.id===i);if(!x)return;fillSelects();
+ $("txId").value=x.id;$("txType").value=x.type;$("txStatus").value=x.status;$("txDesc").value=x.desc;$("txAmount").value=x.amount;$("txDate").value=x.date;$("txFolder").value=x.folder;$("txAccount").value=x.account;$("txPerson").value=x.person||"";$("txNotes").value=x.notes||"";$("txModalTitle").textContent="Editar lançamento";openModal("txModal");
+}
+function trashTx(i){const x=db.transactions.find(a=>a.id===i);if(!x)return;if(confirm("Excluir este lançamento?")){db.transactions=db.transactions.filter(a=>a.id!==i);db.trash.push({type:"transaction",data:x,deletedAt:today()});save();renderAll()}}
+function duplicateTx(i){const x=db.transactions.find(a=>a.id===i);if(x){db.transactions.push(Object.assign({},x,{id:id(),desc:x.desc+" (cópia)"}));save();renderAll()}}
+function openFolder(idv){
+ const x=db.folders.find(a=>a.id===idv);$("folderForm").reset();$("folderId").value=x?x.id:"";$("folderName").value=x?x.name:"";$("folderDesc").value=x?x.desc||"":"";$("folderType").value=x?x.type:"both";$("folderModalTitle").textContent=x?"Editar pasta":"Nova pasta";openModal("folderModal");
+}
+function deleteFolder(i){const x=db.folders.find(a=>a.id===i);if(!x)return;if(confirm("Excluir a pasta '"+x.name+"'? Lançamentos existentes serão preservados.")){db.folders=db.folders.filter(a=>a.id!==i);save();renderAll()}}
+function openService(idv){
+ fillSelects();$("serviceForm").reset();$("serviceId").value="";$("serviceStart").value=today();$("serviceEnd").value=today();$("serviceModalTitle").textContent="Novo serviço";
+ if(idv){const s=db.services.find(a=>a.id===idv);if(s){$("serviceId").value=s.id;$("serviceClient").value=s.client;$("serviceName").value=s.name;$("serviceStart").value=s.start;$("serviceEnd").value=s.end;$("serviceTotal").value=s.total;$("serviceFolder").value=s.folder;$("serviceBilling").value=s.billing;$("serviceN").value=s.n||"";$("serviceV").value=s.v||"";$("serviceFreq").value=s.freq||"monthly";$("serviceDay").value=s.day||"";$("serviceExpected").value=s.expected||"";$("serviceNotes").value=s.notes||"";$("serviceModalTitle").textContent="Editar serviço"}}
+ toggleBilling();openModal("serviceModal");
+}
+function toggleBilling(){
+ const b=$("serviceBilling").value,inst=b==="installments",fixed=b==="fixed";
+ $("installmentFields").style.display=inst?"block":"none";$("installmentValueField").style.display=inst?"block":"none";$("fixedFields").style.display=fixed?"block":"none";$("fixedDayField").style.display=fixed?"block":"none";$("expectedField").style.display=fixed?"block":"none";
+}
+function deleteService(i){if(confirm("Excluir este serviço?")){const x=db.services.find(a=>a.id===i);db.services=db.services.filter(a=>a.id!==i);db.trash.push({type:"service",data:x,deletedAt:today()});save();renderAll()}}
+function openPayment(i){const s=db.services.find(a=>a.id===i);if(!s)return;$("paymentForm").reset();$("paymentServiceId").value=i;$("paymentDate").value=today();$("paymentServiceName").textContent=s.client+" • "+s.name;$("paymentAmount").value=s.billing==="installments"?s.v||"":"";openModal("paymentModal")}
+function historyService(i){const s=db.services.find(a=>a.id===i),p=s?s.payments||[]:[];alert("HISTÓRICO — "+(s?s.name:"")+"\n\n"+(p.length?p.map((x,n)=>(n+1)+". "+dateBR(x.date)+" — "+money(x.amount)+" — "+(x.method||"Pagamento")).join("\n"):"Nenhum pagamento registrado."))}
+function addPrompt(title,label,def){return prompt(title,def||"")}
+function renderFolderDetail(i){
+ const f=db.folders.find(x=>x.id===i);if(!f)return;
+ const a=db.transactions.filter(x=>x.folder===f.name),sv=db.services.filter(x=>x.folder===f.name);
+ $("folders").innerHTML='<div class="toolbar"><div><h2>'+esc(f.name)+'</h2><p>'+esc(f.desc||"")+'</p></div><div><button class="btn" data-action="back-folders">← Voltar</button> <button class="btn primary" data-action="new-tx">+ Inserir</button></div></div><div class="grid g4">'+kpi("Entradas",sum(a,x=>x.type==="income"),"green")+kpi("Saídas",sum(a,x=>x.type==="expense"),"red")+kpi("Em aberto",sum(a,x=>x.status!=="paid"),"amber")+kpi("Serviços",sv.length,"purple")+'</div><div class="card" style="margin-top:16px"><b>Lançamentos da pasta</b>'+txTable(a.slice().reverse())+'</div>';
+}
+function exportCSV(){
+ const rows=[["Data","Tipo","Descrição","Categoria","Conta","Pessoa","Valor","Status"]];
+ db.transactions.forEach(x=>rows.push([x.date,x.type,x.desc,x.folder,x.account,x.person,x.amount,x.status]));
+ const csv=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\n");
+ const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="fincontrol_movimentacoes.csv";a.click();URL.revokeObjectURL(url);
+}
+function backup(){const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="fincontrol_backup.json";a.click();URL.revokeObjectURL(url)}
+function restore(){const inp=document.createElement("input");inp.type="file";inp.accept=".json";inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.transactions||!x.services)throw Error();db=x;save();renderAll();alert("Backup restaurado.");}catch(e){alert("Arquivo inválido.")}};r.readAsText(f)};inp.click()}
+function reset(){if(confirm("Isso substituirá os dados atuais pela demonstração. Continuar?")){db=structuredClone(defaults);save();renderAll()}}
+
+document.addEventListener("click",function(e){
+ const nav=e.target.closest(".nav");if(nav){page(nav.dataset.page);return}
+ const close=e.target.closest("[data-close]");if(close){closeModal(close.dataset.close);return}
+ const el=e.target.closest("[data-action]");if(!el)return;
+ const a=el.dataset.action,i=el.dataset.id;
+ if(a==="new-tx")resetTx(el.dataset.type||"income");
+ else if(a==="edit-tx")editTx(i);
+ else if(a==="delete-tx")trashTx(i);
+ else if(a==="duplicate-tx")duplicateTx(i);
+ else if(a==="new-folder")openFolder();
+ else if(a==="edit-folder")openFolder(i);
+ else if(a==="delete-folder")deleteFolder(i);
+ else if(a==="folder-detail")renderFolderDetail(i);
+ else if(a==="back-folders")renderFolders();
+ else if(a==="new-service")openService();
+ else if(a==="edit-service")openService(i);
+ else if(a==="delete-service")deleteService(i);
+ else if(a==="payment")openPayment(i);
+ else if(a==="history")historyService(i);
+ else if(a==="new-person"){const n=prompt("Nome do cliente/fornecedor:");if(n){const k=prompt("Tipo: Cliente ou Fornecedor","Cliente")||"Cliente";db.people.push({id:id(),name:n,kind:k});save();renderAll()}}
+ else if(a==="delete-person"){if(confirm("Excluir contato?")){db.people=db.people.filter(x=>x.id!==i);save();renderAll()}}
+ else if(a==="new-account"){const n=prompt("Nome da conta/caixa:");if(n){db.accounts.push({id:id(),name:n,type:"Banco",balance:0});save();renderAll()}}
+ else if(a==="delete-account"){if(confirm("Excluir conta?")){db.accounts=db.accounts.filter(x=>x.id!==i);save();renderAll()}}
+ else if(a==="new-card"){const n=prompt("Nome do cartão:");if(n){const l=Number(prompt("Limite:")||0);db.cards.push({id:id(),name:n,limit:l,used:0});save();renderAll()}}
+ else if(a==="delete-card"){if(confirm("Excluir cartão?")){db.cards=db.cards.filter(x=>x.id!==i);save();renderAll()}}
+ else if(a==="new-goal"){const n=prompt("Nome da meta:");if(n){const t=Number(prompt("Valor objetivo:")||0);db.goals.push({id:id(),name:n,target:t,current:0,date:today()});save();renderAll()}}
+ else if(a==="goal-add"){const g=db.goals.find(x=>x.id===i),v=Number(prompt("Valor a adicionar:")||0);if(g&&v>0){g.current+=v;save();renderAll()}}
+ else if(a==="delete-goal"){if(confirm("Excluir meta?")){db.goals=db.goals.filter(x=>x.id!==i);save();renderAll()}}
+ else if(a==="export-csv")exportCSV();
+ else if(a==="backup")backup();
+ else if(a==="restore")restore();
+ else if(a==="reset")reset();
+ else if(a==="empty-trash"){if(confirm("Esvaziar lixeira permanentemente?")){db.trash=[];save();renderAll()}}
+});
+
+$("quickAdd").onclick=()=>resetTx("income");
+$("period").onchange=()=>renderAll();
+$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");
+$("serviceBilling").onchange=toggleBilling;
+
+$("txForm").onsubmit=function(e){
+ e.preventDefault();
+ const o={id:$("txId").value||id(),type:$("txType").value,status:$("txStatus").value,desc:$("txDesc").value.trim(),amount:Number($("txAmount").value),date:$("txDate").value,folder:$("txFolder").value,account:$("txAccount").value,person:$("txPerson").value.trim(),notes:$("txNotes").value.trim()};
+ const ix=db.transactions.findIndex(x=>x.id===o.id);if(ix>=0)db.transactions[ix]=o;else db.transactions.push(o);save();closeModal("txModal");renderAll();
+};
+$("folderForm").onsubmit=function(e){
+ e.preventDefault();const o={id:$("folderId").value||id(),name:$("folderName").value.trim(),desc:$("folderDesc").value.trim(),type:$("folderType").value};
+ const ix=db.folders.findIndex(x=>x.id===o.id);if(ix>=0)db.folders[ix]=o;else db.folders.push(o);save();closeModal("folderModal");renderAll();
+};
+$("serviceForm").onsubmit=function(e){
+ e.preventDefault();const old=db.services.find(x=>x.id===$("serviceId").value);
+ const o={id:$("serviceId").value||id(),client:$("serviceClient").value.trim(),name:$("serviceName").value.trim(),start:$("serviceStart").value,end:$("serviceEnd").value,total:Number($("serviceTotal").value),folder:$("serviceFolder").value,billing:$("serviceBilling").value,n:Number($("serviceN").value)||0,v:Number($("serviceV").value)||0,freq:$("serviceFreq").value,day:Number($("serviceDay").value)||0,expected:Number($("serviceExpected").value)||0,notes:$("serviceNotes").value.trim(),payments:old?old.payments||[]:[]};
+ const ix=db.services.findIndex(x=>x.id===o.id);if(ix>=0)db.services[ix]=o;else db.services.push(o);save();closeModal("serviceModal");renderAll();
+};
+$("paymentForm").onsubmit=function(e){
+ e.preventDefault();const s=db.services.find(x=>x.id===$("paymentServiceId").value),v=Number($("paymentAmount").value);if(!s||v<=0)return;
+ s.payments=s.payments||[];s.payments.push({id:id(),date:$("paymentDate").value,amount:v,method:$("paymentMethod").value,note:$("paymentNote").value.trim()});
+ save();closeModal("paymentModal");renderAll();
+};
+
+renderAll();
+})();
+</script>
+</body>
+</html>
