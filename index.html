@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FinControl Pro — Financeiro V16</title>
+<title>FinControl Pro — Financeiro V17</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--nav:#0b1324;--nav2:#16243d;--bg:#f3f6fb;--card:#fff;--text:#10213d;--muted:#718096;--line:#e4eaf2;--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;--shadow:0 8px 24px rgba(16,33,61,.06);--radius:16px}
@@ -278,7 +278,7 @@ function renderServices(){
        <option value="">Todos os status</option>
        <option value="green">Pago</option>
        <option value="blue">Parcial</option>
-       <option value="amber">Pendente</option>
+       <option value="amber">A pagar</option>
        <option value="red">Vencido</option>
      </select>
      <button class="btn primary" data-action="new-service">+ Novo serviço</button>
@@ -585,7 +585,7 @@ function installmentStatus(inst,payments=[]){
 function installmentStatusLabel(status){
  return ({paid:"Pago",partial:"Parcial",overdue:"Vencido",pending:"A pagar"}[status]||"A pagar");
 }
-function installmentStatusLabel(st){return ({paid:"Pago",partial:"Parcial",pending:"Pendente",overdue:"Vencido"}[st]||st)}
+
 function viewInstallments(serviceId){
  const s=data.services.find(x=>x.id===serviceId);
  if(!s){toast("Serviço não encontrado.",true);return}
@@ -594,7 +594,8 @@ function viewInstallments(serviceId){
  const partialCount=insts.filter(i=>installmentStatus(i,pays)==="partial").length;
  const instTotal=sum(insts,x=>x.amount), instPaid=sum(insts,x=>x.paid_amount);
  const unlinked=pays.filter(p=>!p.installment_id);
- openModal(`<div class="modalhead"><div><h3>Parcelas — ${esc(s.name)}</h3><div class="muted" style="font-size:11px">Acompanhe vencimentos, pagamentos e alterações.</div></div><button class="close" data-close>×</button></div>
+ openModal(`<div class="modalhead"><div><h3>Parcelas — ${esc(s.name)}</h3><div class="muted" style="font-size:11px">Acompanhe vencimentos, pagamentos e alterações. O status é calculado automaticamente.</div></div><button class="close" data-close>×</button></div>
+ <div class="alert" style="margin-bottom:10px;font-size:11px"><b>Pago</b> = quitado • <b>Parcial</b> = recebeu parte • <b>A pagar</b> = ainda não pago e dentro do prazo • <b>Vencido</b> = não pago após o vencimento.</div>
  <div class="installment-summary">
    <div class="installment-stat"><small>Parcelas</small><b>${insts.length}</b></div>
    <div class="installment-stat"><small>Pagas</small><b class="green">${paidCount}</b></div>
