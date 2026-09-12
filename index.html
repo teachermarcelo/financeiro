@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FinControl Pro — Financeiro V15</title>
+<title>FinControl Pro — Financeiro V16</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--nav:#0b1324;--nav2:#16243d;--bg:#f3f6fb;--card:#fff;--text:#10213d;--muted:#718096;--line:#e4eaf2;--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;--shadow:0 8px 24px rgba(16,33,61,.06);--radius:16px}
@@ -66,6 +66,11 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .mobile{display:none}.toast{position:fixed;right:20px;bottom:20px;z-index:100;max-width:420px}.toast .alert{box-shadow:var(--shadow)}
 .tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px}.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700}.tab.active{background:#e8f0ff;border-color:#bfd3ff;color:#1d4ed8}
 @media(max-width:900px){.sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.mobile{display:block}.top{padding:0 16px}.content{padding:18px}.g4,.g3,.g2{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.search input{min-width:0;width:100%}}
+
+.badge.paid{background:#d1fae5;color:#047857}
+.badge.partial{background:#dbeafe;color:#1d4ed8}
+.badge.pending{background:#fef3c7;color:#a16207}
+.badge.overdue{background:#fee2e2;color:#b91c1c}
 </style>
 </head>
 <body>
@@ -567,12 +572,18 @@ function installmentRowsFor(serviceId){
 function paymentsFor(serviceId){
  return activeRows(data.payments).filter(x=>x.service_id===serviceId).sort((a,b)=>String(b.payment_date).localeCompare(String(a.payment_date)));
 }
-function installmentStatus(inst,payments){
- const paid=num(inst.paid_amount), amount=num(inst.amount);
- if(paid>=amount && amount>0) return "paid";
+function installmentStatus(inst,payments=[]){
+ const amount=num(inst?.amount);
+ const paid=num(inst?.paid_amount);
+ const due=inst?.due_date?new Date(inst.due_date+"T23:59:59"):null;
+ if(amount>0 && paid>=amount-0.005) return "paid";
  if(paid>0) return "partial";
- if(inst.due_date && inst.due_date<today()) return "overdue";
+ const todayDate=new Date(); todayDate.setHours(23,59,59,999);
+ if(due && due<todayDate) return "overdue";
  return "pending";
+}
+function installmentStatusLabel(status){
+ return ({paid:"Pago",partial:"Parcial",overdue:"Vencido",pending:"A pagar"}[status]||"A pagar");
 }
 function installmentStatusLabel(st){return ({paid:"Pago",partial:"Parcial",pending:"Pendente",overdue:"Vencido"}[st]||st)}
 function viewInstallments(serviceId){
@@ -591,7 +602,7 @@ function viewInstallments(serviceId){
    <div class="installment-stat"><small>Pago</small><b class="green">${money(instPaid)}</b></div>
  </div>
  <div class="actions" style="margin-bottom:10px;justify-content:space-between">
-   <span class="muted" style="font-size:11px">${insts.length?`Restante nas parcelas: ${money(Math.max(0,instTotal-instPaid))}`:"Nenhuma parcela gerada."}</span>
+   <span class="muted" style="font-size:11px">${insts.length?`A pagar nas parcelas: ${money(Math.max(0,instTotal-instPaid))}`:"Nenhuma parcela gerada."}</span>
    <button class="btn primary small" data-action="payment" data-id="${serviceId}">+ Registrar pagamento</button>
  </div>
  ${insts.length?`<div class="installment-list">
