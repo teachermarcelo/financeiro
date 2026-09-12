@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FinControl Pro — Financeiro V14</title>
+<title>FinControl Pro — Financeiro V15</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--nav:#0b1324;--nav2:#16243d;--bg:#f3f6fb;--card:#fff;--text:#10213d;--muted:#718096;--line:#e4eaf2;--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;--shadow:0 8px 24px rgba(16,33,61,.06);--radius:16px}
@@ -424,7 +424,7 @@ function cardModal(id){
 }
 function serviceModal(id){
  const x=id?data.services.find(a=>a.id===id):null;
- openModal(`<div class="modalhead"><h3>${x?"Editar serviço":"Novo serviço"}</h3><button class="close" data-close>×</button></div><form id="serviceForm"><input type="hidden" id="ss_id" value="${x?.id||""}"><div class="formgrid"><div class="field"><label>Cliente</label><select id="ss_client">${options(data.people,"Selecione")}</select></div><div class="field"><label>Categoria / Pasta</label><select id="ss_folder">${options(data.folders)}</select></div><div class="field full"><label>Nome do serviço *</label><input id="ss_name" required value="${esc(x?.name||"")}"></div><div class="field full"><label>Descrição</label><textarea id="ss_desc">${esc(x?.description||"")}</textarea></div><div class="field"><label>Data inicial *</label><input id="ss_start" type="date" required value="${x?.start_date||today()}"></div><div class="field"><label>Data final *</label><input id="ss_end" type="date" required value="${x?.end_date||today()}"></div><div class="field"><label>Total contratado *</label><input id="ss_total" data-money inputmode="decimal" required value="${x?.total_amount??""}"></div><div class="field"><label>Forma de cobrança</label><select id="ss_billing"><option value="single">Única</option><option value="installments">Parcelado</option><option value="fixed">Recorrente / Fixo</option></select></div><div class="field"><label>Nº parcelas</label><input id="ss_n" type="number" min="1" value="${x?.installment_count||""}"></div><div class="field"><label>Valor parcela</label><input id="ss_v" data-money inputmode="decimal" value="${x?.installment_amount||""}"></div><div class="field"><label>Frequência</label><select id="ss_freq"><option value="monthly">Mensal</option><option value="weekly">Semanal</option><option value="yearly">Anual</option><option value="custom">Personalizada</option></select></div><div class="field"><label>Dia fixo <span class="muted">(opcional)</span></label><input id="ss_day" type="number" min="1" max="31" value="${x?.fixed_day||""}"><div class="muted" style="font-size:10px;margin-top:4px">Se informado, usa esse dia para os próximos vencimentos.</div></div><div class="field full"><label>Observações</label><textarea id="ss_notes">${esc(x?.notes||"")}</textarea></div></div><div class="modalfoot"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar serviço</button></div></form>`);
+ openModal(`<div class="modalhead"><h3>${x?"Editar serviço":"Novo serviço"}</h3><button class="close" data-close>×</button></div><form id="serviceForm"><input type="hidden" id="ss_id" value="${x?.id||""}"><div class="formgrid"><div class="field"><label>Cliente</label><select id="ss_client">${options(data.people,"Selecione")}</select></div><div class="field"><label>Categoria / Pasta</label><select id="ss_folder">${options(data.folders)}</select></div><div class="field full"><label>Nome do serviço *</label><input id="ss_name" required value="${esc(x?.name||"")}"></div><div class="field full"><label>Descrição</label><textarea id="ss_desc">${esc(x?.description||"")}</textarea></div><div class="field"><label>Data inicial *</label><input id="ss_start" type="date" required value="${x?.start_date||today()}"></div><div class="field"><label>Data final *</label><input id="ss_end" type="date" required value="${x?.end_date||today()}"></div><div class="field"><label>Total contratado *</label><input id="ss_total" data-money inputmode="decimal" required value="${x?.total_amount??""}"></div><div class="field"><label>Forma de cobrança</label><select id="ss_billing"><option value="single">Única</option><option value="installments">Parcelado</option><option value="fixed">Recorrente / Fixo</option></select></div><div class="field"><label>Nº parcelas</label><input id="ss_n" type="number" min="1" value="${x?.installment_count||""}"></div><div class="field"><label>Valor parcela</label><input id="ss_v" data-money inputmode="decimal" value="${x?.installment_amount||""}"></div><div class="field"><label>Frequência</label><select id="ss_freq"><option value="monthly">Mensal</option><option value="weekly">Semanal</option><option value="yearly">Anual</option><option value="custom">Personalizada</option></select></div><div class="field"><label>Dia fixo <span class="muted">(opcional)</span></label><input id="ss_day" type="number" min="1" max="31" value="${x?.fixed_day||""}"><div class="muted" style="font-size:10px;margin-top:4px">Se informado, usa esse dia para os próximos vencimentos.</div></div><div class="field full"><div id="ss_preview" class="alert" style="font-size:11px;margin:0">O calendário das parcelas será calculado automaticamente.</div></div><div class="field full"><label>Observações</label><textarea id="ss_notes">${esc(x?.notes||"")}</textarea></div></div><div class="modalfoot"><button type="button" class="btn" data-action="recalc-service">↻ Recalcular parcelas</button><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar serviço</button></div></form>`);
  if(x){$("ss_client").value=x.client_id||"";$("ss_folder").value=x.folder_id||"";$("ss_billing").value=({single:"single",installments:"installments",fixed:"fixed",recurring:"fixed",recorrente:"fixed"}[x.billing_type]||"single");$("ss_freq").value=x.frequency||"monthly"}
 
 
@@ -461,7 +461,12 @@ function serviceModal(id){
      $("ss_v").value=(total/n).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
    }
    if(startVal&&n>0&&(billing==="installments"||billing==="fixed")){
-     $("ss_end").value=dateForInstallment(startVal,n,day,freq);
+     const first=dateForInstallment(startVal,1,day,freq);
+     const last=dateForInstallment(startVal,n,day,freq);
+     $("ss_end").value=last;
+     $("ss_preview").innerHTML=`<b>Calendário automático:</b> 1ª parcela <b>${dateBR(first)}</b> • última parcela <b>${dateBR(last)}</b> • ${n} parcela(s) de <b>${money(total/n)}</b>.`;
+   }else if($("ss_preview")){
+     $("ss_preview").innerHTML="Informe total, número de parcelas e data inicial para visualizar o calendário.";
    }
  };
  ["ss_total","ss_n","ss_start","ss_day"].forEach(id=>$(id).addEventListener("input",calcService));
@@ -522,7 +527,7 @@ function serviceModal(id){
      }
    }
    if(!editing&&billing!=="single"&&n&&installmentAmount)await generateInstallments(savedId,o);
-   closeModal();await load();toast("Serviço e calendário de parcelas atualizados.");
+   closeModal();await load();toast("Serviço salvo e calendário das parcelas atualizado automaticamente.");
  };
 }
 async function generateInstallments(serviceId,o){
@@ -732,6 +737,12 @@ document.addEventListener("click",async e=>{
   else if(a==="delete-service"){if(confirm("Excluir este serviço?"))softDelete("fin_services",id)}
   else if(a==="payment")paymentModal(id);
   else if(a==="view-installments")viewInstallments(id);
+  else if(a==="recalc-service"){
+    const ev=new Event("input");
+    ["ss_total","ss_n","ss_start","ss_day"].forEach(k=>$(k)?.dispatchEvent(ev));
+    ["ss_billing","ss_start","ss_freq"].forEach(k=>$(k)?.dispatchEvent(new Event("change")));
+    toast("Calendário recalculado. Confira as datas antes de salvar.");
+  }
   else if(a==="payment-installment")paymentModal(b.dataset.service,id);
   else if(a==="edit-installment")installmentModal(id);
   else if(a==="delete-installment"){if(confirm("Excluir esta parcela?")){const r=await sb.from("fin_service_installments").update({deleted_at:new Date().toISOString()}).eq("id",id).eq("user_id",user.id);if(r.error)toast(r.error.message,true);else{await load();toast("Parcela excluída.")}}}
