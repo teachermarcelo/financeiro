@@ -62,7 +62,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .iconbox{width:40px;height:40px;border-radius:12px;background:#edf4ff;display:grid;place-items:center;color:var(--blue);font-weight:900}.progress{height:8px;background:#edf1f6;border-radius:999px;overflow:hidden}.progress>span{display:block;height:100%;background:var(--blue);border-radius:999px}
 .alert{padding:13px 15px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12px}.alert.error{background:#fef2f2;border-color:#fecaca;color:#b91c1c}.alert.success{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
 .empty{text-align:center;padding:45px;color:var(--muted)}.search{display:flex;gap:8px}.search input{min-width:240px}
-.modal{position:fixed;inset:0;background:rgba(6,15,31,.48);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}.modal.open{display:flex}.modalbox{background:#fff;border-radius:18px;width:min(760px,100%);max-height:92vh;overflow:auto;padding:22px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.modalhead h3{margin:0}.close{border:0;background:#f1f5f9;border-radius:9px;width:36px;height:36px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:11px;font-weight:800;color:#475569}.field input,.field select,.field textarea{border:1px solid #d8e0eb;border-radius:10px;padding:10px 11px;outline:none;background:#fff}.field textarea{min-height:80px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:#93b4ff;box-shadow:0 0 0 3px #dbeafe}.modalfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+#authModal{z-index:200}.authbox{width:min(470px,100%);padding:28px}.authlogo{width:48px;height:48px;border-radius:14px;background:#1d4ed8;color:#fff;display:grid;place-items:center;font-weight:900;font-size:22px;margin-bottom:16px}.authbox h2{margin:0 0 7px}.authbox p{color:#64748b;font-size:13px;line-height:1.55}.authnote{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin:14px 0;font-size:12px;color:#475569}.authbox .btn{height:42px}.modal{position:fixed;inset:0;background:rgba(6,15,31,.48);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}.modal.open{display:flex}.modalbox{background:#fff;border-radius:18px;width:min(760px,100%);max-height:92vh;overflow:auto;padding:22px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.modalhead h3{margin:0}.close{border:0;background:#f1f5f9;border-radius:9px;width:36px;height:36px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:11px;font-weight:800;color:#475569}.field input,.field select,.field textarea{border:1px solid #d8e0eb;border-radius:10px;padding:10px 11px;outline:none;background:#fff}.field textarea{min-height:80px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:#93b4ff;box-shadow:0 0 0 3px #dbeafe}.modalfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
 .mobile{display:none}.toast{position:fixed;right:20px;bottom:20px;z-index:100;max-width:420px}.toast .alert{box-shadow:var(--shadow)}
 .tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:15px}.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700}.tab.active{background:#e8f0ff;border-color:#bfd3ff;color:#1d4ed8}
 @media(max-width:900px){.sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.mobile{display:block}.top{padding:0 16px}.content{padding:18px}.g4,.g3,.g2{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.search input{min-width:0;width:100%}}
@@ -116,6 +116,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 </main>
 </div>
 
+<div class="modal" id="authModal"><div class="modalbox authbox" id="authBox"></div></div>
 <div class="modal" id="modal"><div class="modalbox" id="modalBox"></div></div>
 <div class="toast" id="toast"></div>
 
@@ -183,13 +184,103 @@ async function ensureSession(){
   let {data:s,error}=await sb.auth.getSession();
   if(error)throw error;
   if(!s.session){
-    const r=await sb.auth.signInAnonymously();
-    if(r.error)throw new Error("Anonymous Auth: "+r.error.message);
-    s=r.data;
+    await showLoginModal(true);
+    const after=await sb.auth.getSession();
+    if(!after.data.session)throw new Error("É necessário entrar na conta para acessar seus dados.");
+    s=after.data;
   }
   user=s.session.user;
-  $("sessionBadge").textContent="Sessão ativa";
-  $("sessionBadge").className="badge green";
+  updateSessionUI();
+}
+
+function updateSessionUI(){
+  const anonymous=!!user?.is_anonymous;
+  $("sessionBadge").textContent=anonymous?"Acesso temporário":"Conta protegida";
+  $("sessionBadge").className=anonymous?"badge amber":"badge green";
+}
+
+function closeAuthModal(){
+  $("authModal").classList.remove("open");
+  $("authBox").innerHTML="";
+}
+
+function authErrorMessage(msg){
+  const m=String(msg||"");
+  if(/manual linking|identity.*link|linking/i.test(m)) return "A vinculação manual de identidades ainda não está habilitada no Supabase. Ative essa opção em Authentication → Settings → User Signups/Identity Linking e tente novamente.";
+  if(/already registered|already exists|duplicate|unique/i.test(m)) return "Este e-mail já está associado a outra conta. Use outro e-mail ou entre com a conta existente.";
+  if(/invalid.*email/i.test(m)) return "Digite um e-mail válido.";
+  if(/password/i.test(m)&&/short|characters|length|weak/i.test(m)) return "A senha precisa atender aos requisitos de segurança configurados no Supabase.";
+  return m;
+}
+
+function showLoginModal(firstLoad=false){
+  return new Promise(resolve=>{
+    $("authBox").innerHTML=`
+      <div class="authlogo">F</div>
+      <h2>Acessar o FinControl</h2>
+      <p>Entre com seu e-mail e senha para acessar os mesmos dados em computador e celular.</p>
+      <div class="authnote"><b>Importante:</b> não criaremos outra conta automaticamente. Isso evita que o celular fique com dados zerados.</div>
+      <form id="loginForm">
+        <div class="field"><label>E-mail</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></div>
+        <div class="field" style="margin-top:12px"><label>Senha</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Sua senha"></div>
+        <div id="loginMsg" style="margin-top:12px"></div>
+        <div class="modalfoot"><button type="submit" class="btn primary">Entrar</button></div>
+      </form>`;
+    $("authModal").classList.add("open");
+    $("loginForm").onsubmit=async e=>{
+      e.preventDefault();
+      const msg=$("loginMsg"); msg.innerHTML="";
+      const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
+      const r=await sb.auth.signInWithPassword({email,password});
+      if(r.error){msg.innerHTML=`<div class="alert error">${esc(authErrorMessage(r.error.message))}</div>`;return}
+      user=r.data.user; updateSessionUI(); closeAuthModal(); resolve(true);
+    };
+  });
+}
+
+function showProtectAnonymousModal(){
+  return new Promise(resolve=>{
+    $("authBox").innerHTML=`
+      <div class="authlogo">F</div>
+      <h2>Proteja seus dados financeiros</h2>
+      <p>Este navegador está usando um acesso temporário. Seus lançamentos atuais estão vinculados a ele. Vamos transformar <b>esta mesma conta</b> em uma conta permanente para que os dados também apareçam no celular.</p>
+      <div class="authnote"><b>Seus dados não serão recriados.</b> O mesmo usuário do Supabase será mantido, portanto os registros existentes continuam vinculados à conta.</div>
+      <form id="protectForm">
+        <div class="field"><label>E-mail da conta</label><input id="protectEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></div>
+        <div class="field" style="margin-top:12px"><label>Crie uma senha</label><input id="protectPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="Mínimo conforme a configuração do projeto"></div>
+        <div class="field" style="margin-top:12px"><label>Confirme a senha</label><input id="protectPassword2" type="password" autocomplete="new-password" required placeholder="Repita a senha"></div>
+        <div id="protectMsg" style="margin-top:12px"></div>
+        <div class="modalfoot"><button type="submit" class="btn primary">Proteger minha conta</button></div>
+      </form>`;
+    $("authModal").classList.add("open");
+    $("protectForm").onsubmit=async e=>{
+      e.preventDefault();
+      const msg=$("protectMsg");msg.innerHTML="";
+      const email=$("protectEmail").value.trim(),password=$("protectPassword").value,password2=$("protectPassword2").value;
+      if(password!==password2){msg.innerHTML='<div class="alert error">As senhas não coincidem.</div>';return}
+      const btn=e.submitter; if(btn)btn.disabled=true;
+      try{
+        const r=await sb.auth.updateUser({email,password});
+        if(r.error)throw r.error;
+        user=r.data.user||user;
+        updateSessionUI();
+        const confirmation=/confirm|verif/i.test(String(r.data.user?.email_confirmed_at||""))===false;
+        closeAuthModal();
+        toast("Conta protegida com sucesso. Seus dados continuam na mesma conta.");
+        if(confirmation){
+          setTimeout(()=>toast("Se o Supabase exigir confirmação, verifique seu e-mail antes de entrar no celular."),900);
+        }
+        resolve(true);
+      }catch(err){
+        msg.innerHTML=`<div class="alert error">${esc(authErrorMessage(err.message))}</div>`;
+        if(btn)btn.disabled=false;
+      }
+    };
+  });
+}
+
+async function protectIfAnonymous(){
+  if(user?.is_anonymous) await showProtectAnonymousModal();
 }
 
 async function loadTable(table,select="*"){
@@ -783,7 +874,7 @@ document.addEventListener("click",async e=>{
 document.addEventListener("input",e=>{if(e.target.id==="txSearch")renderTxList("all")});
 $("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");
 $("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeModal()});
-(async()=>{try{await ensureSession();await load();}catch(e){$("sessionBadge").textContent="Erro";$("sessionBadge").className="badge red";$("content").innerHTML=`<div class="alert error"><b>Erro de conexão:</b> ${esc(e.message)}<br><br>O Anonymous Auth já foi ativado. Se o erro persistir, verifique as políticas RLS das tabelas <code>fin_*</code>.</div>`}})();
+(async()=>{try{await ensureSession();await load();await protectIfAnonymous();}catch(e){console.error(e);$("sessionBadge").textContent="Erro";$("sessionBadge").className="badge red";$("content").innerHTML=`<div class="alert error"><b>Não foi possível abrir o FinControl:</b> ${esc(e.message)}<br><br>Se este for um novo dispositivo, entre com o e-mail e senha da sua conta. Não crie um novo acesso temporário, pois ele começará vazio.</div>`}})();
 </script>
 </body>
 </html>
