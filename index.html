@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FinControl Pro — Financeiro</title>
+<title>FinControl Pro — Financeiro V9</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--nav:#0b1324;--nav2:#16243d;--bg:#f3f6fb;--card:#fff;--text:#10213d;--muted:#718096;--line:#e4eaf2;--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;--shadow:0 8px 24px rgba(16,33,61,.06);--radius:16px}
@@ -16,7 +16,29 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}.kpi small{color:var(--muted);font-size:12px}.kpi strong{display:block;font-size:25px;margin-top:8px}.green{color:var(--green)!important}.red{color:var(--red)!important}.amber{color:var(--amber)!important}.blue{color:var(--blue)!important}.purple{color:var(--purple)!important}
 .statrow{display:flex;align-items:center;justify-content:space-between;gap:12px}.muted{color:var(--muted)}.badge{display:inline-block;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:800;background:#eef2f7}.badge.green{background:#dcfce7}.badge.red{background:#fee2e2}.badge.amber{background:#fef3c7}.badge.blue{background:#dbeafe}.badge.purple{background:#ede9fe}
 .tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:760px}.table th,.table td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:12px}.table th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}.table tr:hover td{background:#fafcff}
-.foldergrid,.peoplegrid,.accountgrid,.servicegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}.iconbox{width:40px;height:40px;border-radius:12px;background:#edf4ff;display:grid;place-items:center;color:var(--blue);font-weight:900}.progress{height:8px;background:#edf1f6;border-radius:999px;overflow:hidden}.progress>span{display:block;height:100%;background:var(--blue);border-radius:999px}
+.foldergrid,.peoplegrid,.accountgrid,.servicegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.service-table-wrap{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:auto;box-shadow:var(--shadow)}
+.service-table{width:100%;min-width:980px;border-collapse:separate;border-spacing:0}
+.service-table th{background:#f1f4f7;color:#43546d;font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:15px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+.service-table td{padding:14px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:12px}
+.service-table tr:last-child td{border-bottom:0}
+.service-table tbody tr:hover{background:#fafcff}
+.service-name{font-weight:800;color:#10213d;font-size:13px}
+.service-client{font-size:11px;color:#718096;margin-top:4px}
+.service-category{display:inline-flex;padding:6px 10px;border-radius:8px;background:#6b7681;color:#fff;font-size:11px;font-weight:700}
+.service-money{white-space:nowrap}
+.service-progress{width:150px;min-width:150px}
+.service-progress .bar{height:7px;background:#e7ebef;border-radius:999px;overflow:hidden}
+.service-progress .bar span{display:block;height:100%;background:linear-gradient(90deg,#178a5a,#20c997);border-radius:999px}
+.service-progress.partial .bar span{background:#f4bd22}
+.service-progress small{display:block;margin-top:5px;color:#718096}
+.service-actions{display:flex;gap:7px;align-items:center;white-space:nowrap}
+.service-actions .btn{min-width:40px}
+.service-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.service-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.service-filters input,.service-filters select{height:38px;border:1px solid var(--line);border-radius:10px;padding:0 11px;background:#fff;color:var(--text)}
+@media(max-width:900px){.service-table{min-width:900px}.service-progress{width:125px;min-width:125px}}
+.iconbox{width:40px;height:40px;border-radius:12px;background:#edf4ff;display:grid;place-items:center;color:var(--blue);font-weight:900}.progress{height:8px;background:#edf1f6;border-radius:999px;overflow:hidden}.progress>span{display:block;height:100%;background:var(--blue);border-radius:999px}
 .alert{padding:13px 15px;border-radius:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12px}.alert.error{background:#fef2f2;border-color:#fecaca;color:#b91c1c}.alert.success{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
 .empty{text-align:center;padding:45px;color:var(--muted)}.search{display:flex;gap:8px}.search input{min-width:240px}
 .modal{position:fixed;inset:0;background:rgba(6,15,31,.48);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}.modal.open{display:flex}.modalbox{background:#fff;border-radius:18px;width:min(760px,100%);max-height:92vh;overflow:auto;padding:22px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.modalhead h3{margin:0}.close{border:0;background:#f1f5f9;border-radius:9px;width:36px;height:36px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:11px;font-weight:800;color:#475569}.field input,.field select,.field textarea{border:1px solid #d8e0eb;border-radius:10px;padding:10px 11px;outline:none;background:#fff}.field textarea{min-height:80px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:#93b4ff;box-shadow:0 0 0 3px #dbeafe}.modalfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
@@ -90,7 +112,11 @@ const statusBadge=s=>{let c=s==="paid"?"green":s==="pending"||s==="overdue"?"amb
 function toast(msg,error=false){$("toast").innerHTML=`<div class="alert ${error?"error":"success"}">${esc(msg)}</div>`;setTimeout(()=>{$("toast").innerHTML=""},4000)}
 function openModal(html){$("modalBox").innerHTML=html;$("modal").classList.add("open")}
 function closeModal(){$("modal").classList.remove("open")}
-function kpi(title,value,cls="blue",sub=""){return `<div class="card kpi"><small>${esc(title)}</small><strong class="${cls}">${typeof value==="number"?money(value):value}</strong>${sub?`<div class="muted" style="font-size:11px;margin-top:5px">${esc(sub)}</div>`:""}</div>`}
+function kpi(title,value,cls="blue",sub=""){
+ const countKpi=/^(lançamentos|quantidade|vencidos|parcelas|contatos)$/i.test(String(title).trim());
+ const shown=countKpi && typeof value==="number" ? Number(value).toLocaleString("pt-BR") : (typeof value==="number" ? money(value) : value);
+ return `<div class="card kpi"><small>${esc(title)}</small><strong class="${cls}">${shown}</strong>${sub?`<div class="muted" style="font-size:11px;margin-top:5px">${esc(sub)}</div>`:""}</div>`;
+}
 function activeRows(a){return (a||[]).filter(x=>!x.deleted_at)}
 
 async function ensureSession(){
@@ -172,9 +198,76 @@ function renderFolderDetail(id){
  $("content").innerHTML=`<div class="toolbar"><div><h2>${esc(f.name)}</h2><p>${esc(f.description||"")}</p></div><div class="actions"><button class="btn" data-view-jump="folders">← Voltar</button><button class="btn primary" data-action="new-tx">+ Inserir</button></div></div><div class="grid g4">${kpi("Entradas",sum(a,x=>x.type==="income"?x.amount:0),"green")}${kpi("Saídas",sum(a,x=>x.type==="expense"?x.amount:0),"red")}${kpi("Em aberto",sum(a,x=>!["paid","cancelled"].includes(x.status)?x.amount:0),"amber")}${kpi("Lançamentos",a.length,"purple")}</div><div class="card" style="margin-top:16px">${txTable(a.slice().reverse())}</div>`;
 }
 function renderServices(){
- $("content").innerHTML=`<div class="toolbar"><div><h2>Serviços</h2><p>Contratos, parcelas, recebimentos e saldo restante.</p></div><button class="btn primary" data-action="new-service">+ Novo serviço</button></div>
- <div class="grid g3">${kpi("Total contratado",sum(activeRows(data.services),x=>x.total_amount),"blue")}${kpi("Total recebido",sum(activeRows(data.payments),x=>x.amount),"green")}${kpi("Restante",Math.max(0,sum(activeRows(data.services),x=>x.total_amount)-sum(activeRows(data.payments),x=>x.amount)),"amber")}</div>
- <div class="servicegrid" style="margin-top:16px">${activeRows(data.services).map(s=>{const p=sum(activeRows(data.payments).filter(x=>x.service_id===s.id),x=>x.amount),t=num(s.total_amount),pct=t?Math.min(100,p/t*100):0,inst=activeRows(data.installments).filter(x=>x.service_id===s.id);return `<div class="card"><div class="statrow"><div><small class="muted">${esc(personName(s.client_id))}</small><h3 style="margin:4px 0">${esc(s.name)}</h3></div><div class="actions"><button class="btn small" data-action="edit-service" data-id="${s.id}">Editar</button><button class="btn small danger" data-action="delete-service" data-id="${s.id}">Excluir</button></div></div><div class="grid g3" style="margin-top:12px"><div><small class="muted">Total</small><b>${money(t)}</b></div><div><small class="muted">Pago</small><b class="green">${money(p)}</b></div><div><small class="muted">Restante</small><b class="amber">${money(Math.max(0,t-p))}</b></div></div><div class="progress" style="margin-top:13px"><span style="width:${pct}%"></span></div><div class="statrow" style="font-size:11px;margin-top:7px"><span>${pct.toFixed(0)}% recebido</span><span>${inst.length} parcela(s)</span></div><div class="muted" style="font-size:11px;margin-top:9px">${dateBR(s.start_date)} → ${dateBR(s.end_date)}</div><button class="btn" style="width:100%;margin-top:12px" data-action="payment" data-id="${s.id}">+ Registrar pagamento</button></div>`}).join("")||'<div class="card empty">Nenhum serviço cadastrado.</div>'}</div>`;
+ const services=activeRows(data.services);
+ const payments=activeRows(data.payments);
+ const total=services.reduce((s,x)=>s+num(x.total_amount),0);
+ const received=payments.reduce((s,x)=>s+num(x.amount),0);
+ const remaining=Math.max(0,total-received);
+ const statusFor=(s,p,t)=>{
+   if(t<=0) return {label:"Pendente",cls:"amber"};
+   if(p>=t) return {label:"Pago",cls:"green"};
+   if(s.end_date && s.end_date<today()) return {label:"Vencido",cls:"red"};
+   return {label:"Parcial",cls:"blue"};
+ };
+ $("content").innerHTML=`
+ <div class="service-head">
+   <div><h2>Serviços</h2><p>Contratos, recebimentos, parcelas e valores em aberto.</p></div>
+   <div class="service-filters">
+     <input id="serviceSearch" placeholder="Pesquisar serviço ou cliente..." style="min-width:250px">
+     <select id="serviceStatusFilter">
+       <option value="">Todos os status</option>
+       <option value="green">Pago</option>
+       <option value="blue">Parcial</option>
+       <option value="amber">Pendente</option>
+       <option value="red">Vencido</option>
+     </select>
+     <button class="btn primary" data-action="new-service">+ Novo serviço</button>
+   </div>
+ </div>
+ <div class="grid g3" style="margin-top:16px">
+   ${kpi("Total contratado",total,"blue")}
+   ${kpi("Total recebido",received,"green")}
+   ${kpi("Total restante",remaining,"amber")}
+ </div>
+ <div class="service-table-wrap">
+   <table class="service-table">
+    <thead><tr>
+      <th>Serviço</th><th>Categoria</th><th>Total</th><th>Pago</th>
+      <th>Progresso</th><th>Restante</th><th>Vencimento</th><th>Status</th><th>Ações</th>
+    </tr></thead>
+    <tbody id="servicesBody">
+     ${services.map(s=>{
+       const p=payments.filter(x=>x.service_id===s.id).reduce((a,x)=>a+num(x.amount),0);
+       const t=num(s.total_amount), r=Math.max(0,t-p), pct=t?Math.min(100,p/t*100):0;
+       const st=statusFor(s,p,t), inst=activeRows(data.installments).filter(x=>x.service_id===s.id);
+       const category=folderName(s.folder_id), client=personName(s.client_id);
+       return `<tr data-service-row data-search="${esc((s.name+" "+client+" "+category).toLowerCase())}" data-status="${st.cls}">
+        <td><div class="service-name">${esc(s.name)}</div><div class="service-client">${esc(client==="—"?"Sem cliente":client)}</div></td>
+        <td><span class="service-category">${esc(category==="—"?"Outros":category)}</span></td>
+        <td class="service-money">${money(t)}</td>
+        <td class="service-money green">${money(p)}</td>
+        <td><div class="service-progress ${st.cls==="blue"||st.cls==="red"?"partial":""}"><div class="bar"><span style="width:${pct}%"></span></div><small>${pct.toFixed(0)}%${inst.length?` • ${inst.length} parcela(s)`: ""}</small></div></td>
+        <td class="service-money ${r>0?"red":"green"}"><b>${money(r)}</b></td>
+        <td>${dateBR(s.end_date)}</td>
+        <td>${statusBadge(st.label==="Pago"?"paid":st.label==="Vencido"?"overdue":st.label==="Parcial"?"partial":"pending")}</td>
+        <td><div class="service-actions">
+          <button class="btn small primary" title="Registrar pagamento" data-action="payment" data-id="${s.id}">$</button>
+          <button class="btn small" title="Editar serviço" data-action="edit-service" data-id="${s.id}">✎</button>
+          <button class="btn small danger" title="Excluir serviço" data-action="delete-service" data-id="${s.id}">🗑</button>
+        </div></td>
+       </tr>`;
+     }).join("") || `<tr><td colspan="9"><div class="empty">Nenhum serviço cadastrado.</div></td></tr>`}
+    </tbody>
+   </table>
+ </div>`;
+ const search=$("serviceSearch"), filter=$("serviceStatusFilter");
+ const apply=()=>{
+   const q=(search.value||"").toLowerCase().trim(), f=filter.value;
+   document.querySelectorAll("[data-service-row]").forEach(row=>{
+     row.style.display=(!q||row.dataset.search.includes(q))&&(!f||row.dataset.status===f)?"":"none";
+   });
+ };
+ search.addEventListener("input",apply); filter.addEventListener("change",apply);
 }
 function renderPeople(){
  $("content").innerHTML=`<div class="toolbar"><div><h2>Clientes / Fornecedores</h2><p>Cadastros e relacionamentos financeiros.</p></div><button class="btn primary" data-action="new-person">+ Novo contato</button></div><div class="peoplegrid">${activeRows(data.people).map(p=>`<div class="card"><div class="statrow"><div class="iconbox">♙</div><button class="btn small danger" data-action="delete-person" data-id="${p.id}">Excluir</button></div><h3>${esc(p.name)}</h3><span class="badge blue">${esc(p.kind)}</span><p class="muted" style="font-size:12px">${esc(p.phone||p.whatsapp||"Sem telefone")}<br>${esc(p.email||"Sem e-mail")}<br>${esc(p.document||"Sem documento")}</p></div>`).join("")||'<div class="card empty">Nenhum contato cadastrado.</div>'}</div>`;
