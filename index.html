@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FinControl Pro — Financeiro V13</title>
+<title>FinControl Pro — Financeiro V14</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--nav:#0b1324;--nav2:#16243d;--bg:#f3f6fb;--card:#fff;--text:#10213d;--muted:#718096;--line:#e4eaf2;--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;--shadow:0 8px 24px rgba(16,33,61,.06);--radius:16px}
@@ -424,35 +424,44 @@ function cardModal(id){
 }
 function serviceModal(id){
  const x=id?data.services.find(a=>a.id===id):null;
- openModal(`<div class="modalhead"><h3>${x?"Editar serviço":"Novo serviço"}</h3><button class="close" data-close>×</button></div><form id="serviceForm"><input type="hidden" id="ss_id" value="${x?.id||""}"><div class="formgrid"><div class="field"><label>Cliente</label><select id="ss_client">${options(data.people,"Selecione")}</select></div><div class="field"><label>Categoria / Pasta</label><select id="ss_folder">${options(data.folders)}</select></div><div class="field full"><label>Nome do serviço *</label><input id="ss_name" required value="${esc(x?.name||"")}"></div><div class="field full"><label>Descrição</label><textarea id="ss_desc">${esc(x?.description||"")}</textarea></div><div class="field"><label>Data inicial *</label><input id="ss_start" type="date" required value="${x?.start_date||today()}"></div><div class="field"><label>Data final *</label><input id="ss_end" type="date" required value="${x?.end_date||today()}"></div><div class="field"><label>Total contratado *</label><input id="ss_total" data-money inputmode="decimal" required value="${x?.total_amount??""}"></div><div class="field"><label>Forma de cobrança</label><select id="ss_billing"><option value="single">Única</option><option value="installments">Parcelado</option><option value="fixed">Recorrente / Fixo</option></select></div><div class="field"><label>Nº parcelas</label><input id="ss_n" type="number" min="1" value="${x?.installment_count||""}"></div><div class="field"><label>Valor parcela</label><input id="ss_v" data-money inputmode="decimal" value="${x?.installment_amount||""}"></div><div class="field"><label>Frequência</label><select id="ss_freq"><option value="monthly">Mensal</option><option value="weekly">Semanal</option><option value="yearly">Anual</option><option value="custom">Personalizada</option></select></div><div class="field"><label>Dia fixo</label><input id="ss_day" type="number" min="1" max="31" value="${x?.fixed_day||""}"></div><div class="field full"><label>Observações</label><textarea id="ss_notes">${esc(x?.notes||"")}</textarea></div></div><div class="modalfoot"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar serviço</button></div></form>`);
+ openModal(`<div class="modalhead"><h3>${x?"Editar serviço":"Novo serviço"}</h3><button class="close" data-close>×</button></div><form id="serviceForm"><input type="hidden" id="ss_id" value="${x?.id||""}"><div class="formgrid"><div class="field"><label>Cliente</label><select id="ss_client">${options(data.people,"Selecione")}</select></div><div class="field"><label>Categoria / Pasta</label><select id="ss_folder">${options(data.folders)}</select></div><div class="field full"><label>Nome do serviço *</label><input id="ss_name" required value="${esc(x?.name||"")}"></div><div class="field full"><label>Descrição</label><textarea id="ss_desc">${esc(x?.description||"")}</textarea></div><div class="field"><label>Data inicial *</label><input id="ss_start" type="date" required value="${x?.start_date||today()}"></div><div class="field"><label>Data final *</label><input id="ss_end" type="date" required value="${x?.end_date||today()}"></div><div class="field"><label>Total contratado *</label><input id="ss_total" data-money inputmode="decimal" required value="${x?.total_amount??""}"></div><div class="field"><label>Forma de cobrança</label><select id="ss_billing"><option value="single">Única</option><option value="installments">Parcelado</option><option value="fixed">Recorrente / Fixo</option></select></div><div class="field"><label>Nº parcelas</label><input id="ss_n" type="number" min="1" value="${x?.installment_count||""}"></div><div class="field"><label>Valor parcela</label><input id="ss_v" data-money inputmode="decimal" value="${x?.installment_amount||""}"></div><div class="field"><label>Frequência</label><select id="ss_freq"><option value="monthly">Mensal</option><option value="weekly">Semanal</option><option value="yearly">Anual</option><option value="custom">Personalizada</option></select></div><div class="field"><label>Dia fixo <span class="muted">(opcional)</span></label><input id="ss_day" type="number" min="1" max="31" value="${x?.fixed_day||""}"><div class="muted" style="font-size:10px;margin-top:4px">Se informado, usa esse dia para os próximos vencimentos.</div></div><div class="field full"><label>Observações</label><textarea id="ss_notes">${esc(x?.notes||"")}</textarea></div></div><div class="modalfoot"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar serviço</button></div></form>`);
  if(x){$("ss_client").value=x.client_id||"";$("ss_folder").value=x.folder_id||"";$("ss_billing").value=({single:"single",installments:"installments",fixed:"fixed",recurring:"fixed",recorrente:"fixed"}[x.billing_type]||"single");$("ss_freq").value=x.frequency||"monthly"}
 
 
+
+ const calcFirstDue=(startValue,day,freq)=>{
+   const start=new Date(startValue+"T00:00:00");
+   if(!day) return new Date(start);
+   let d=new Date(start);
+   d.setDate(1);
+   d.setDate(Math.min(Number(day),new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));
+   if(d<start){
+     if(freq==="weekly") d.setDate(d.getDate()+7);
+     else if(freq==="yearly") d.setFullYear(d.getFullYear()+1);
+     else d.setMonth(d.getMonth()+1);
+   }
+   return d;
+ };
+ const dateForInstallment=(startValue,index,day,freq)=>{
+   const first=calcFirstDue(startValue,day,freq);
+   let d=new Date(first);
+   if(index>1){
+     if(freq==="weekly") d.setDate(d.getDate()+7*(index-1));
+     else if(freq==="yearly") d.setFullYear(d.getFullYear()+(index-1));
+     else d.setMonth(d.getMonth()+(index-1));
+   }
+   if(day && freq!=="weekly"){
+     d.setDate(Math.min(Number(day),new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));
+   }
+   return d.toISOString().slice(0,10);
+ };
  const calcService=()=>{
-   const total=num($("ss_total").value), n=Number($("ss_n").value||0), billing=$("ss_billing").value;
+   const total=num($("ss_total").value), n=Number($("ss_n").value||0), billing=$("ss_billing").value, startVal=$("ss_start").value, day=Number($("ss_day").value||0), freq=$("ss_freq").value;
    if((billing==="installments"||billing==="fixed")&&total>0&&n>0){
      $("ss_v").value=(total/n).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
    }
-   const startVal=$("ss_start").value, day=Number($("ss_day").value||0), freq=$("ss_freq").value;
    if(startVal&&n>0&&(billing==="installments"||billing==="fixed")){
-     let first=new Date(startVal+"T00:00:00");
-     if(day>=1){
-       first.setDate(1);
-       first.setDate(Math.min(day,new Date(first.getFullYear(),first.getMonth()+1,0).getDate()));
-       if(first<new Date(startVal+"T00:00:00")){
-         if(freq==="weekly") first.setDate(first.getDate()+7);
-         else if(freq==="yearly") first.setFullYear(first.getFullYear()+1);
-         else first.setMonth(first.getMonth()+1);
-       }
-     }
-     let last=new Date(first);
-     if(freq==="weekly") last.setDate(last.getDate()+7*(n-1));
-     else if(freq==="yearly") last.setFullYear(last.getFullYear()+(n-1));
-     else last.setMonth(last.getMonth()+(n-1));
-     if(day>=1&&freq!=="weekly"){
-       last.setDate(Math.min(day,new Date(last.getFullYear(),last.getMonth()+1,0).getDate()));
-     }
-     $("ss_end").value=last.toISOString().slice(0,10);
+     $("ss_end").value=dateForInstallment(startVal,n,day,freq);
    }
  };
  ["ss_total","ss_n","ss_start","ss_day"].forEach(id=>$(id).addEventListener("input",calcService));
@@ -468,37 +477,80 @@ function serviceModal(id){
    if(total<=0){toast("Informe um total contratado válido.",true);return}
    if(billing!=="single"&&(!n||n<1)){toast("Informe o número de parcelas.",true);return}
    const editing=Boolean($("ss_id").value);
-   const q=editing?await sb.from("fin_services").update(o).eq("id",$("ss_id").value).eq("user_id",user.id):await sb.from("fin_services").insert(o).select("id").single();
+   const serviceId=$("ss_id").value;
+   const q=editing?await sb.from("fin_services").update(o).eq("id",serviceId).eq("user_id",user.id):await sb.from("fin_services").insert(o).select("id").single();
    if(q.error){toast(q.error.message,true);return}
-   if(!editing&&billing!=="single"&&n&&installmentAmount)await generateInstallments(q.data.id,o);
-   closeModal();await load();toast("Serviço salvo.");
+   const savedId=editing?serviceId:q.data.id;
+
+   // Ao editar: recalcula as datas das parcelas existentes, mantendo pagamentos/status.
+   if(editing && billing!=="single" && n){
+     const existing=installmentRowsFor(savedId);
+     if(existing.length){
+       const limit=Math.min(existing.length,n);
+       for(let idx=0;idx<limit;idx++){
+         const inst=existing[idx];
+         const due=dateForInstallment(o.start_date,idx+1,o.fixed_day,o.frequency);
+         const amount=installmentAmount!==null?installmentAmount:num(inst.amount);
+         const r=await sb.from("fin_service_installments").update({due_date:due,amount}).eq("id",inst.id).eq("user_id",user.id);
+         if(r.error){toast("Serviço salvo, mas houve erro ao atualizar as parcelas: "+r.error.message,true);return}
+       }
+       // Se aumentou o número de parcelas, cria somente as novas.
+       if(n>existing.length){
+         const rows=[];
+         for(let idx=existing.length+1;idx<=n;idx++){
+           rows.push({user_id:user.id,service_id:savedId,installment_number:idx,due_date:dateForInstallment(o.start_date,idx,o.fixed_day,o.frequency),amount:installmentAmount,paid_amount:0,status:"pending"});
+         }
+         if(rows.length){
+           const rr=await sb.from("fin_service_installments").insert(rows);
+           if(rr.error){toast("Serviço salvo, mas não foi possível criar as novas parcelas: "+rr.error.message,true);return}
+         }
+       }
+       // Se reduziu o número, só exclui as últimas parcelas que ainda não receberam pagamento.
+       if(n<existing.length){
+         const extras=existing.filter(i=>Number(i.installment_number)>n);
+         for(const inst of extras){
+           if(num(inst.paid_amount)>0){
+             toast("Serviço salvo. Parcelas já pagas além do novo limite foram preservadas.",false);
+             continue;
+           }
+           const rr=await sb.from("fin_service_installments").update({deleted_at:new Date().toISOString()}).eq("id",inst.id).eq("user_id",user.id);
+           if(rr.error){toast("Serviço salvo, mas não foi possível remover uma parcela excedente: "+rr.error.message,true);return}
+         }
+       }
+     }else{
+       await generateInstallments(savedId,o);
+     }
+   }
+   if(!editing&&billing!=="single"&&n&&installmentAmount)await generateInstallments(savedId,o);
+   closeModal();await load();toast("Serviço e calendário de parcelas atualizados.");
  };
 }
 async function generateInstallments(serviceId,o){
- const n=Number(o.installment_count),v=num(o.installment_amount),start=new Date(o.start_date+"T00:00:00"),rows=[];
+ const n=Number(o.installment_count),v=num(o.installment_amount),rows=[];
  if(!n||v<=0)return;
- let first=new Date(start),day=Number(o.fixed_day||0),freq=o.frequency||"monthly";
- if(day>=1){
-   first.setDate(1);
-   first.setDate(Math.min(day,new Date(first.getFullYear(),first.getMonth()+1,0).getDate()));
-   if(first<start){
-     if(freq==="weekly")first.setDate(first.getDate()+7);
-     else if(freq==="yearly")first.setFullYear(first.getFullYear()+1);
-     else first.setMonth(first.getMonth()+1);
-   }
- }
  for(let i=1;i<=n;i++){
-   let d=new Date(first);
-   if(i>1){
-     if(freq==="weekly")d.setDate(d.getDate()+7*(i-1));
-     else if(freq==="yearly")d.setFullYear(d.getFullYear()+(i-1));
-     else d.setMonth(d.getMonth()+(i-1));
-   }
-   if(day>=1&&freq!=="weekly"){
-     const y=d.getFullYear(),m=d.getMonth();
-     d.setDate(Math.min(day,new Date(y,m+1,0).getDate()));
-   }
-   rows.push({user_id:user.id,service_id:serviceId,installment_number:i,due_date:d.toISOString().slice(0,10),amount:v,paid_amount:0,status:"pending"});
+   const due=(()=>{ 
+     const start=new Date(o.start_date+"T00:00:00"), day=Number(o.fixed_day||0), freq=o.frequency||"monthly";
+     let first=new Date(start);
+     if(day>=1){
+       first.setDate(1);
+       first.setDate(Math.min(day,new Date(first.getFullYear(),first.getMonth()+1,0).getDate()));
+       if(first<start){
+         if(freq==="weekly")first.setDate(first.getDate()+7);
+         else if(freq==="yearly")first.setFullYear(first.getFullYear()+1);
+         else first.setMonth(first.getMonth()+1);
+       }
+     }
+     let d=new Date(first);
+     if(i>1){
+       if(freq==="weekly")d.setDate(d.getDate()+7*(i-1));
+       else if(freq==="yearly")d.setFullYear(d.getFullYear()+(i-1));
+       else d.setMonth(d.getMonth()+(i-1));
+     }
+     if(day>=1&&freq!=="weekly")d.setDate(Math.min(day,new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));
+     return d.toISOString().slice(0,10);
+   })();
+   rows.push({user_id:user.id,service_id:serviceId,installment_number:i,due_date:due,amount:v,paid_amount:0,status:"pending"});
  }
  const r=await sb.from("fin_service_installments").insert(rows);
  if(r.error)console.warn(r.error);
