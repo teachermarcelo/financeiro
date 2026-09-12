@@ -260,16 +260,17 @@ function showProtectAnonymousModal(){
       if(password!==password2){msg.innerHTML='<div class="alert error">As senhas não coincidem.</div>';return}
       const btn=e.submitter; if(btn)btn.disabled=true;
       try{
-        const r=await sb.auth.updateUser({email,password});
-        if(r.error)throw r.error;
-        user=r.data.user||user;
+        // Converte a conta anônima mantendo o MESMO user.id.
+        // Fazemos em duas etapas para evitar que a atualização de e-mail/senha falhe em conjunto.
+        const er=await sb.auth.updateUser({email});
+        if(er.error)throw er.error;
+        const pr=await sb.auth.updateUser({password});
+        if(pr.error)throw pr.error;
+        user=pr.data.user||er.data.user||user;
         updateSessionUI();
-        const confirmation=/confirm|verif/i.test(String(r.data.user?.email_confirmed_at||""))===false;
         closeAuthModal();
-        toast("Conta protegida com sucesso. Seus dados continuam na mesma conta.");
-        if(confirmation){
-          setTimeout(()=>toast("Se o Supabase exigir confirmação, verifique seu e-mail antes de entrar no celular."),900);
-        }
+        toast("Conta protegida. Seus dados continuam vinculados à mesma conta.");
+        setTimeout(()=>toast("Se a confirmação de e-mail estiver ativa, confirme o e-mail antes de entrar no celular."),900);
         resolve(true);
       }catch(err){
         msg.innerHTML=`<div class="alert error">${esc(authErrorMessage(err.message))}</div>`;
