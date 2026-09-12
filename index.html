@@ -382,7 +382,9 @@ function renderFolders(){
 function renderFolderDetail(id){
  const f=data.folders.find(x=>x.id===id);if(!f)return renderFolders();
  const a=activeRows(data.transactions).filter(x=>x.folder_id===id);
- $("content").innerHTML=`<div class="toolbar"><div><h2>${esc(f.name)}</h2><p>${esc(f.description||"")}</p></div><div class="actions"><button class="btn" data-view-jump="folders">← Voltar</button><button class="btn primary" data-action="new-tx">+ Inserir</button></div></div><div class="grid g4">${kpi("Entradas",sum(a,x=>x.type==="income"?x.amount:0),"green")}${kpi("Saídas",sum(a,x=>x.type==="expense"?x.amount:0),"red")}${kpi("Em aberto",sum(a,x=>!["paid","cancelled"].includes(x.status)?x.amount:0),"amber")}${kpi("Lançamentos",a.length,"purple")}</div><div class="card" style="margin-top:16px">${txTable(a.slice().reverse())}</div>`;
+ const latest=a.slice().sort((x,y)=>String(y.transaction_date||"").localeCompare(String(x.transaction_date||"")))[0];
+ const latestPaid=a.filter(x=>x.status==="paid").slice().sort((x,y)=>String(y.transaction_date||"").localeCompare(String(x.transaction_date||"")))[0];
+ $("content").innerHTML=`<div class="toolbar"><div><h2>${esc(f.name)}</h2><p>${esc(f.description||"")}</p></div><div class="actions"><button class="btn" data-view-jump="folders">← Voltar</button><button class="btn primary" data-action="new-tx" data-folder="${id}">+ Inserir</button></div></div><div class="grid g4">${kpi("Entradas",sum(a,x=>x.type==="income"?x.amount:0),"green")}${kpi("Saídas",sum(a,x=>x.type==="expense"?x.amount:0),"red")}${kpi("Em aberto",sum(a,x=>!["paid","cancelled"].includes(x.status)?x.amount:0),"amber")}${kpi("Lançamentos",a.length,"purple")}</div><div class="grid g2" style="margin-top:16px"><div class="card"><h3 style="margin-top:0">Última movimentação</h3>${latest?`<b>${esc(latest.description)}</b><div class="muted" style="font-size:12px;margin-top:5px">${dateBR(latest.transaction_date)} · ${labelType(latest.type)} · ${statusLabel(latest.status)}</div><div style="margin-top:8px" class="${latest.type==="income"?"green":"red"}"><b>${latest.type==="income"?"+":"−"} ${money(latest.amount)}</b></div>`:'<div class="empty">Nenhuma movimentação.</div>'}</div><div class="card"><h3 style="margin-top:0">Último pagamento confirmado</h3>${latestPaid?`<b>${esc(latestPaid.description)}</b><div class="muted" style="font-size:12px;margin-top:5px">${dateBR(latestPaid.transaction_date)} · ${labelType(latestPaid.type)}</div><div style="margin-top:8px" class="${latestPaid.type==="income"?"green":"red"}"><b>${latestPaid.type==="income"?"+":"−"} ${money(latestPaid.amount)}</b></div>`:'<div class="empty">Nenhum pagamento confirmado.</div>'}</div></div><div class="card" style="margin-top:16px">${txTable(a.slice().sort((x,y)=>String(y.transaction_date||"").localeCompare(String(x.transaction_date||""))))}</div>`;
 }
 function renderServices(){
  const services=activeRows(data.services);
@@ -503,7 +505,7 @@ function setView(v){currentView=v;render();$("sidebar").classList.remove("open")
 function options(arr,placeholder="Selecione"){
  return `<option value="">${esc(placeholder)}</option>`+activeRows(arr).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join("");
 }
-function txModal(id,type="income"){
+function txModal(id,type="income",folderId=""){
  const x=id?data.transactions.find(a=>a.id===id):null;
  openModal(`<div class="modalhead"><h3>${x?"Editar lançamento":"Novo lançamento"}</h3><button class="close" data-close>×</button></div>
  <form id="txForm"><input type="hidden" id="f_id" value="${x?.id||""}"><div class="formgrid">
@@ -522,7 +524,7 @@ function txModal(id,type="income"){
  <div class="field"><label>Referência</label><input id="f_ref" value="${esc(x?.reference||"")}"></div>
  <div class="field full"><label>Observações</label><textarea id="f_notes">${esc(x?.notes||"")}</textarea></div></div>
  <div class="modalfoot"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar lançamento</button></div></form>`);
- if(x){$("f_approval").value=approvalOf(x);$("f_type").value=x.type;$("f_status").value=x.status;$("f_folder").value=x.folder_id||"";$("f_account").value=x.account_id||"";$("f_person").value=x.person_id||"";$("f_service").value=x.service_id||"";$("f_card").value=x.card_id||"";$("f_method").value=x.payment_method||""} else {$("f_approval").value=(type==="income"||type==="expense")?"pending":"approved";}
+ if(x){$("f_approval").value=approvalOf(x);$("f_type").value=x.type;$("f_status").value=x.status;$("f_folder").value=x.folder_id||"";$("f_account").value=x.account_id||"";$("f_person").value=x.person_id||"";$("f_service").value=x.service_id||"";$("f_card").value=x.card_id||"";$("f_method").value=x.payment_method||""} else {$("f_approval").value=(type==="income"||type==="expense")?"pending":"approved";} if(folderId) $("f_folder").value=folderId;
  $("txForm").onsubmit=async e=>{e.preventDefault();await saveTx()}
 }
 async function saveTx(){
@@ -863,7 +865,7 @@ document.addEventListener("click",async e=>{
  if(b.dataset.txFilter){document.querySelectorAll("[data-tx-filter]").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderTxList(b.dataset.txFilter);return}
  const a=b.dataset.action,id=b.dataset.id;
  try{
-  if(a==="new-tx")txModal("",b.dataset.type||"income");
+  if(a==="new-tx")txModal("",b.dataset.type||"income",b.dataset.folder||"");
   else if(a==="edit-tx")txModal(id);
   else if(a==="duplicate-tx")duplicateTx(id);
   else if(a==="delete-tx"){if(confirm("Excluir este lançamento?"))softDelete("fin_transactions",id)}
