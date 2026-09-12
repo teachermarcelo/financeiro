@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FinControl Pro — Financeiro V11</title>
+<title>FinControl Pro — Financeiro V12</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--nav:#0b1324;--nav2:#16243d;--bg:#f3f6fb;--card:#fff;--text:#10213d;--muted:#718096;--line:#e4eaf2;--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;--shadow:0 8px 24px rgba(16,33,61,.06);--radius:16px}
@@ -17,6 +17,27 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .statrow{display:flex;align-items:center;justify-content:space-between;gap:12px}.muted{color:var(--muted)}.badge{display:inline-block;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:800;background:#eef2f7}.badge.green{background:#dcfce7}.badge.red{background:#fee2e2}.badge.amber{background:#fef3c7}.badge.blue{background:#dbeafe}.badge.purple{background:#ede9fe}
 .tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:760px}.table th,.table td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:12px}.table th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}.table tr:hover td{background:#fafcff}
 .foldergrid,.peoplegrid,.accountgrid,.servicegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+
+.installment-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.installment-stat{background:#f5f7fa;border:1px solid var(--line);border-radius:12px;padding:12px}
+.installment-stat small{display:block;color:#718096;font-size:10px;text-transform:uppercase}
+.installment-stat b{display:block;margin-top:5px;font-size:18px}
+.installment-list{border:1px solid var(--line);border-radius:12px;overflow:auto;max-height:430px}
+.installment-row{display:grid;grid-template-columns:55px 105px 110px 110px 105px 1fr;gap:10px;align-items:center;padding:11px 12px;border-bottom:1px solid var(--line);font-size:12px;min-width:720px}
+.installment-row:last-child{border-bottom:0}
+.installment-row.header{background:#f1f4f7;font-size:10px;font-weight:800;text-transform:uppercase;color:#53657c;position:sticky;top:0;z-index:2}
+.installment-row .num{font-weight:900;color:#20324d}
+.installment-status{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:800}
+.installment-status.paid{background:#d9f7e8;color:#087443}
+.installment-status.partial{background:#dceaff;color:#1454b8}
+.installment-status.pending{background:#fff0c7;color:#9a5b00}
+.installment-status.overdue{background:#ffe0e0;color:#b42323}
+.installment-actions{display:flex;gap:5px;justify-content:flex-end}
+.installment-actions .btn{padding:6px 8px;font-size:10px}
+.payment-history{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+.payment-history-row{display:grid;grid-template-columns:100px 100px 1fr 80px;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:11px}
+.payment-history-row:last-child{border-bottom:0}
+@media(max-width:700px){.installment-summary{grid-template-columns:repeat(2,1fr)}}
 .service-table-wrap{margin-top:16px;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:auto;box-shadow:var(--shadow)}
 .service-table{width:100%;min-width:980px;border-collapse:separate;border-spacing:0}
 .service-table th{background:#f1f4f7;color:#43546d;font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:15px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -292,6 +313,7 @@ function renderServices(){
         <td>${statusBadge(st.label==="Pago"?"paid":st.label==="Vencido"?"overdue":st.label==="Parcial"?"partial":"pending")}</td>
         <td><div class="service-actions">
           <button class="btn small primary" title="Registrar pagamento" data-action="payment" data-id="${s.id}">$</button>
+          <button class="btn small" title="Ver parcelas e pagamentos" data-action="view-installments" data-id="${s.id}">60x</button>
           <button class="btn small" title="Editar serviço" data-action="edit-service" data-id="${s.id}">✎</button>
           <button class="btn small danger" title="Excluir serviço" data-action="delete-service" data-id="${s.id}">🗑</button>
         </div></td>
@@ -438,10 +460,135 @@ async function generateInstallments(serviceId,o){
  }
  const r=await sb.from("fin_service_installments").insert(rows);if(r.error)console.warn(r.error)
 }
-function paymentModal(id){
- const s=data.services.find(x=>x.id===id);openModal(`<div class="modalhead"><h3>Registrar pagamento</h3><button class="close" data-close>×</button></div><form id="payForm"><input type="hidden" id="pay_service" value="${id}"><div class="formgrid"><div class="field full"><label>Serviço</label><input disabled value="${esc(s?.name||"")}"></div><div class="field"><label>Valor *</label><input id="pay_amount" data-money inputmode="decimal" required value="${s?.installment_amount||""}"></div><div class="field"><label>Data *</label><input id="pay_date" type="date" required value="${today()}"></div><div class="field"><label>Forma</label><select id="pay_method"><option>Pix</option><option>Dinheiro</option><option>Transferência</option><option>Boleto</option><option>Outro</option></select></div><div class="field"><label>Conta de destino</label><select id="pay_account">${options(data.accounts)}</select></div><div class="field full"><label>Observações</label><textarea id="pay_notes"></textarea></div></div><div class="modalfoot"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Registrar pagamento</button></div></form>`);
- $("payForm").onsubmit=async e=>{e.preventDefault();const o={user_id:user.id,service_id:id,payment_date:$("pay_date").value,amount:num($("pay_amount").value),payment_method:$("pay_method").value,account_id:$("pay_account").value||null,notes:$("pay_notes").value.trim()||null};const r=await sb.from("fin_service_payments").insert(o).select("id").single();if(r.error){toast(r.error.message,true);return}closeModal();await load();toast("Pagamento registrado.")};
+function installmentRowsFor(serviceId){
+ return activeRows(data.installments).filter(x=>x.service_id===serviceId).sort((a,b)=>Number(a.installment_number)-Number(b.installment_number));
 }
+function paymentsFor(serviceId){
+ return activeRows(data.payments).filter(x=>x.service_id===serviceId).sort((a,b)=>String(b.payment_date).localeCompare(String(a.payment_date)));
+}
+function installmentStatus(inst,payments){
+ const paid=num(inst.paid_amount), amount=num(inst.amount);
+ if(paid>=amount && amount>0) return "paid";
+ if(paid>0) return "partial";
+ if(inst.due_date && inst.due_date<today()) return "overdue";
+ return "pending";
+}
+function installmentStatusLabel(st){return ({paid:"Pago",partial:"Parcial",pending:"Pendente",overdue:"Vencido"}[st]||st)}
+function viewInstallments(serviceId){
+ const s=data.services.find(x=>x.id===serviceId);
+ if(!s){toast("Serviço não encontrado.",true);return}
+ const insts=installmentRowsFor(serviceId), pays=paymentsFor(serviceId);
+ const paidCount=insts.filter(i=>installmentStatus(i,pays)==="paid").length;
+ const partialCount=insts.filter(i=>installmentStatus(i,pays)==="partial").length;
+ const instTotal=sum(insts,x=>x.amount), instPaid=sum(insts,x=>x.paid_amount);
+ const unlinked=pays.filter(p=>!p.installment_id);
+ openModal(`<div class="modalhead"><div><h3>Parcelas — ${esc(s.name)}</h3><div class="muted" style="font-size:11px">Acompanhe vencimentos, pagamentos e alterações.</div></div><button class="close" data-close>×</button></div>
+ <div class="installment-summary">
+   <div class="installment-stat"><small>Parcelas</small><b>${insts.length}</b></div>
+   <div class="installment-stat"><small>Pagas</small><b class="green">${paidCount}</b></div>
+   <div class="installment-stat"><small>Parciais</small><b style="color:#2563eb">${partialCount}</b></div>
+   <div class="installment-stat"><small>Pago</small><b class="green">${money(instPaid)}</b></div>
+ </div>
+ <div class="actions" style="margin-bottom:10px;justify-content:space-between">
+   <span class="muted" style="font-size:11px">${insts.length?`Restante nas parcelas: ${money(Math.max(0,instTotal-instPaid))}`:"Nenhuma parcela gerada."}</span>
+   <button class="btn primary small" data-action="payment" data-id="${serviceId}">+ Registrar pagamento</button>
+ </div>
+ ${insts.length?`<div class="installment-list">
+   <div class="installment-row header"><span>#</span><span>Vencimento</span><span>Valor</span><span>Pago</span><span>Status</span><span>Ações</span></div>
+   ${insts.map(i=>{
+     const st=installmentStatus(i,pays);
+     return `<div class="installment-row">
+       <span class="num">${i.installment_number}</span>
+       <span>${dateBR(i.due_date)}</span>
+       <span>${money(i.amount)}</span>
+       <span class="${num(i.paid_amount)>0?"green":""}">${money(i.paid_amount)}</span>
+       <span><span class="installment-status ${st}">${installmentStatusLabel(st)}</span>${i.paid_at?`<div class="muted" style="font-size:9px;margin-top:3px">Pago em ${new Date(i.paid_at).toLocaleDateString("pt-BR")}</div>`:""}</span>
+       <span class="installment-actions">
+         <button class="btn small primary" data-action="payment-installment" data-service="${serviceId}" data-id="${i.id}">$</button>
+         <button class="btn small" data-action="edit-installment" data-id="${i.id}">Editar</button>
+         <button class="btn small danger" data-action="delete-installment" data-id="${i.id}">Excluir</button>
+       </span>
+     </div>`;
+   }).join("")}
+ </div>`:`<div class="empty">Este serviço ainda não possui parcelas geradas.</div>`}
+ ${pays.length?`<div class="payment-history"><h4 style="margin:0 0 8px">Histórico de pagamentos</h4>
+   ${pays.map(p=>`<div class="payment-history-row"><span>${dateBR(p.payment_date)}</span><b class="green">${money(p.amount)}</b><span>${esc(p.payment_method||"—")}${p.installment_id?"":" • sem parcela vinculada"}</span><span class="actions"><button class="btn small" data-action="edit-payment" data-id="${p.id}">Editar</button><button class="btn small danger" data-action="delete-payment" data-id="${p.id}">Excluir</button></span></div>`).join("")}
+ </div>`:""}
+ ${unlinked.length?`<div class="alert" style="margin-top:12px">Existem ${unlinked.length} pagamento(s) antigo(s) sem parcela vinculada. Eles entram no total recebido, mas não são marcados como parcelas pagas automaticamente.</div>`:""}
+ <div class="modalfoot"><button type="button" class="btn" data-close>Fechar</button></div>`);
+}
+function paymentModal(id,installmentId=""){
+ const s=data.services.find(x=>x.id===id), inst=installmentId?data.installments.find(x=>x.id===installmentId):null;
+ const defaultAmount=inst?Math.max(0,num(inst.amount)-num(inst.paid_amount)):num(s?.installment_amount);
+ openModal(`<div class="modalhead"><h3>Registrar pagamento${inst?` — Parcela ${inst.installment_number}`:""}</h3><button class="close" data-close>×</button></div><form id="payForm"><input type="hidden" id="pay_id" value=""><input type="hidden" id="pay_service" value="${id}"><input type="hidden" id="pay_installment" value="${installmentId}">
+ <div class="formgrid"><div class="field full"><label>Serviço</label><input disabled value="${esc(s?.name||"")}"></div>
+ <div class="field"><label>Valor *</label><input id="pay_amount" data-money inputmode="decimal" required value="${defaultAmount}"></div>
+ <div class="field"><label>Data *</label><input id="pay_date" type="date" required value="${today()}"></div>
+ <div class="field"><label>Forma</label><select id="pay_method"><option>Pix</option><option>Dinheiro</option><option>Transferência</option><option>Boleto</option><option>Outro</option></select></div>
+ <div class="field"><label>Conta de destino</label><select id="pay_account">${options(data.accounts)}</select></div>
+ <div class="field full"><label>Observações</label><textarea id="pay_notes"></textarea></div></div>
+ <div class="modalfoot"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Registrar pagamento</button></div></form>`);
+ $("payForm").onsubmit=async e=>{
+   e.preventDefault();
+   const amount=num($("pay_amount").value), iid=$("pay_installment").value||null;
+   if(amount<=0){toast("Informe um valor válido.",true);return}
+   const o={user_id:user.id,service_id:id,installment_id:iid,payment_date:$("pay_date").value,amount,payment_method:$("pay_method").value,account_id:$("pay_account").value||null,notes:$("pay_notes").value.trim()||null};
+   const r=await sb.from("fin_service_payments").insert(o).select("id").single();
+   if(r.error){toast(r.error.message,true);return}
+   if(iid) await refreshInstallment(iid);
+   closeModal();await load();toast("Pagamento registrado.");
+ };
+}
+async function refreshInstallment(installmentId){
+ const i=data.installments.find(x=>x.id===installmentId);
+ if(!i)return;
+ const ps=activeRows(data.payments).filter(p=>p.installment_id===installmentId);
+ const paid=sum(ps,x=>x.amount), amount=num(i.amount);
+ const status=paid>=amount&&amount>0?"paid":paid>0?"partial":"pending";
+ const patch={paid_amount:paid,status,paid_at:paid>0?new Date().toISOString():null};
+ const r=await sb.from("fin_service_installments").update(patch).eq("id",installmentId).eq("user_id",user.id);
+ if(r.error) console.warn(r.error);
+}
+function installmentModal(id){
+ const i=data.installments.find(x=>x.id===id); if(!i)return;
+ openModal(`<div class="modalhead"><h3>Editar parcela ${i.installment_number}</h3><button class="close" data-close>×</button></div>
+ <form id="installmentForm"><div class="formgrid">
+ <div class="field"><label>Nº parcela</label><input id="ii_n" type="number" min="1" value="${i.installment_number}"></div>
+ <div class="field"><label>Vencimento *</label><input id="ii_date" type="date" required value="${i.due_date}"></div>
+ <div class="field"><label>Valor *</label><input id="ii_amount" data-money inputmode="decimal" required value="${i.amount}"></div>
+ <div class="field"><label>Valor já pago</label><input disabled value="${formatMoneyInputValue(i.paid_amount)}"></div>
+ <div class="field full"><label>Observações</label><textarea id="ii_notes">${esc(i.notes||"")}</textarea></div>
+ </div><div class="modalfoot"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar parcela</button></div></form>`);
+ $("installmentForm").onsubmit=async e=>{
+   e.preventDefault();
+   const o={installment_number:Number($("ii_n").value),due_date:$("ii_date").value,amount:num($("ii_amount").value),notes:$("ii_notes").value.trim()||null};
+   const r=await sb.from("fin_service_installments").update(o).eq("id",id).eq("user_id",user.id);
+   if(r.error){toast(r.error.message,true);return}
+   closeModal();await load();toast("Parcela atualizada.");
+ };
+}
+function paymentEditModal(id){
+ const p=data.payments.find(x=>x.id===id); if(!p)return;
+ openModal(`<div class="modalhead"><h3>Editar pagamento</h3><button class="close" data-close>×</button></div>
+ <form id="paymentEditForm"><div class="formgrid">
+ <div class="field"><label>Valor *</label><input id="pe_amount" data-money inputmode="decimal" required value="${p.amount}"></div>
+ <div class="field"><label>Data *</label><input id="pe_date" type="date" required value="${p.payment_date}"></div>
+ <div class="field"><label>Forma</label><select id="pe_method"><option>Pix</option><option>Dinheiro</option><option>Transferência</option><option>Boleto</option><option>Outro</option></select></div>
+ <div class="field"><label>Parcela</label><select id="pe_installment"><option value="">Sem parcela</option>${installmentRowsFor(p.service_id).map(i=>`<option value="${i.id}" ${i.id===p.installment_id?"selected":""}>Parcela ${i.installment_number}</option>`).join("")}</select></div>
+ <div class="field full"><label>Observações</label><textarea id="pe_notes">${esc(p.notes||"")}</textarea></div>
+ </div><div class="modalfoot"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
+ $("paymentEditForm").onsubmit=async e=>{
+   e.preventDefault();
+   const oldI=p.installment_id, newI=$("pe_installment").value||null;
+   const o={amount:num($("pe_amount").value),payment_date:$("pe_date").value,payment_method:$("pe_method").value,installment_id:newI,notes:$("pe_notes").value.trim()||null};
+   const r=await sb.from("fin_service_payments").update(o).eq("id",id).eq("user_id",user.id);
+   if(r.error){toast(r.error.message,true);return}
+   if(oldI) await refreshInstallment(oldI);
+   if(newI) await refreshInstallment(newI);
+   closeModal();await load();toast("Pagamento atualizado.");
+ };
+}
+
 function goalModal(id){
  const x=id?data.goals.find(a=>a.id===id):null;
  openModal(`<div class="modalhead"><h3>${x?"Editar meta":"Nova meta"}</h3><button class="close" data-close>×</button></div><form id="goalForm"><input type="hidden" id="gg_id" value="${x?.id||""}"><div class="formgrid"><div class="field full"><label>Nome *</label><input id="gg_name" required value="${esc(x?.name||"")}"></div><div class="field"><label>Valor alvo *</label><input id="gg_target" inputmode="decimal" required value="${x?.target_amount??""}"></div><div class="field"><label>Valor atual</label><input id="gg_current" inputmode="decimal" value="${x?.current_amount??0}"></div><div class="field"><label>Prazo</label><input id="gg_date" type="date" value="${x?.target_date||""}"></div><div class="field full"><label>Descrição</label><textarea id="gg_desc">${esc(x?.description||"")}</textarea></div></div><div class="modalfoot"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar</button></div></form>`);
@@ -488,6 +635,12 @@ document.addEventListener("click",async e=>{
   else if(a==="edit-service")serviceModal(id);
   else if(a==="delete-service"){if(confirm("Excluir este serviço?"))softDelete("fin_services",id)}
   else if(a==="payment")paymentModal(id);
+  else if(a==="view-installments")viewInstallments(id);
+  else if(a==="payment-installment")paymentModal(b.dataset.service,id);
+  else if(a==="edit-installment")installmentModal(id);
+  else if(a==="delete-installment"){if(confirm("Excluir esta parcela?")){const r=await sb.from("fin_service_installments").update({deleted_at:new Date().toISOString()}).eq("id",id).eq("user_id",user.id);if(r.error)toast(r.error.message,true);else{await load();toast("Parcela excluída.")}}}
+  else if(a==="edit-payment")paymentEditModal(id);
+  else if(a==="delete-payment"){const p=data.payments.find(x=>x.id===id);if(confirm("Excluir este pagamento?")){const r=await sb.from("fin_service_payments").update({deleted_at:new Date().toISOString()}).eq("id",id).eq("user_id",user.id);if(r.error)toast(r.error.message,true);else{if(p?.installment_id)await refreshInstallment(p.installment_id);await load();toast("Pagamento excluído.")}}}
   else if(a==="new-person")personModal();
   else if(a==="delete-person"){if(confirm("Excluir este contato?"))softDelete("fin_people",id)}
   else if(a==="new-account")accountModal();
