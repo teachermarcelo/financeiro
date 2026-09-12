@@ -32,6 +32,28 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .installment-status.partial{background:#dceaff;color:#1454b8}
 .installment-status.pending{background:#fff0c7;color:#9a5b00}
 .installment-status.overdue{background:#ffe0e0;color:#b42323}
+/* V19 - aprovação e responsividade mobile */
+.approval-pending{background:#fff4cc;color:#8a5b00;border:1px solid #f0d27a}
+.approval-approved{background:#d9f7e8;color:#087443;border:1px solid #a9e6c5}
+.approval-rejected{background:#ffe0e0;color:#a61b1b;border:1px solid #f1b1b1}
+.approval-note{font-size:11px;color:var(--muted);margin-top:4px}
+@media(max-width:720px){
+  .top{padding:14px 12px;gap:10px;align-items:flex-start}
+  .top .actions{flex-wrap:wrap;justify-content:flex-end}
+  .toolbar{align-items:flex-start;flex-direction:column;gap:12px}
+  .toolbar .actions{width:100%;display:flex;flex-wrap:wrap}
+  .toolbar .btn{flex:1;min-width:145px}
+  .grid.g4,.grid.g3,.grid.g2{grid-template-columns:1fr!important}
+  .card{padding:16px!important;border-radius:18px}
+  .statrow{gap:10px;align-items:flex-start}
+  .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:720px}
+  .modalbox{width:calc(100vw - 20px)!important;max-height:92vh;overflow:auto}
+  .formgrid{grid-template-columns:1fr!important}
+  .field.full{grid-column:span 1!important}
+  .actions .btn{min-height:42px}
+}
+
 .installment-actions{display:flex;gap:5px;justify-content:flex-end}
 .installment-actions .btn{padding:6px 8px;font-size:10px}
 .payment-history{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
@@ -153,6 +175,18 @@ const sum=(arr,fn=x=>x)=>arr.reduce((a,x)=>a+num(fn(x)),0);
 const labelType=t=>t==="income"?"Entrada":"Saída";
 const statusLabel=s=>({paid:"Pago",pending:"Pendente",cancelled:"Cancelado",overdue:"Vencido"})[s]||s||"—";
 const statusBadge=s=>{let c=s==="paid"?"green":s==="pending"||s==="overdue"?"amber":s==="cancelled"?"red":"blue";return `<span class="badge ${c}">${esc(statusLabel(s))}</span>`};
+const APPROVAL_MARK='[[approval:';
+function approvalOf(x){
+  const n=String(x?.notes||'');
+  const m=n.match(/\[\[approval:(pending|approved|rejected|cancelled)(?::([^\]]*))?\]\]/i);
+  return (m?.[1]||'approved').toLowerCase();
+}
+function approvalLabel(s){return ({pending:'Aguardando aprovação',approved:'Aprovado pelo admin',rejected:'Rejeitado',cancelled:'Cancelado'}[s]||'Aprovado pelo admin')}
+function approvalBadge(s){const c=s==='pending'?'approval-pending':s==='rejected'?'approval-rejected':'approval-approved';return `<span class="badge ${c}">${esc(approvalLabel(s))}</span>`}
+function stripApproval(n){return String(n||'').replace(/\[\[approval:(pending|approved|rejected|cancelled)(?::[^\]]*)?\]\]\s*/ig,'').trim()}
+function withApproval(note,status){return `[[approval:${status}]]${note?` ${note}`:''}`}
+function isApproved(x){return approvalOf(x)==='approved'}
+
 function toast(msg,error=false){$("toast").innerHTML=`<div class="alert ${error?"error":"success"}">${esc(msg)}</div>`;setTimeout(()=>{$("toast").innerHTML=""},4000)}
 function formatMoneyInputValue(v){
  const raw=String(v??"").trim();
@@ -310,18 +344,19 @@ function cardName(id){return data.cards.find(x=>x.id===id)?.name||"—"}
 function txTable(rows){
  if(!rows.length)return `<div class="empty">Nenhum lançamento encontrado.</div>`;
  return `<div class="tablewrap"><table class="table"><thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Categoria</th><th>Conta</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody>
- ${rows.map(x=>`<tr><td>${dateBR(x.transaction_date)}</td><td><b>${esc(x.description)}</b><div class="muted">${esc(personName(x.person_id))}</div></td><td><span class="badge ${x.type==="income"?"green":"red"}">${labelType(x.type)}</span></td><td>${esc(folderName(x.folder_id))}</td><td>${esc(accountName(x.account_id))}</td><td class="${x.type==="income"?"green":"red"}"><b>${x.type==="income"?"+":"−"} ${money(x.amount)}</b></td><td>${statusBadge(x.status)}</td><td><div class="actions"><button class="btn small" data-action="edit-tx" data-id="${x.id}">Editar</button><button class="btn small" data-action="duplicate-tx" data-id="${x.id}">Duplicar</button><button class="btn small danger" data-action="delete-tx" data-id="${x.id}">Excluir</button></div></td></tr>`).join("")}
+ ${rows.map(x=>`<tr><td>${dateBR(x.transaction_date)}</td><td><b>${esc(x.description)}</b><div class="muted">${esc(personName(x.person_id))}</div><div style="margin-top:4px">${approvalBadge(approvalOf(x))}</div><div class="muted">Venc.: ${dateBR(x.due_date||x.transaction_date)}</div></td><td><span class="badge ${x.type==="income"?"green":"red"}">${labelType(x.type)}</span></td><td>${esc(folderName(x.folder_id))}</td><td>${esc(accountName(x.account_id))}</td><td class="${x.type==="income"?"green":"red"}"><b>${x.type==="income"?"+":"−"} ${money(x.amount)}</b></td><td>${statusBadge(x.status)}</td><td><div class="actions"><button class="btn small" data-action="edit-tx" data-id="${x.id}">Editar</button><button class="btn small" data-action="duplicate-tx" data-id="${x.id}">Duplicar</button><button class="btn small danger" data-action="delete-tx" data-id="${x.id}">Excluir</button></div></td></tr>`).join("")}
  </tbody></table></div>`;
 }
 
 function renderOverview(){
- const a=periodTx(),inc=sum(a,x=>x.type==="income"?x.amount:0),out=sum(a,x=>x.type==="expense"?x.amount:0),open=sum(a,x=>!["paid","cancelled"].includes(x.status)?x.amount:0);
+ const a=periodTx(),approved=a.filter(isApproved),inc=sum(approved,x=>x.type==="income"?x.amount:0),out=sum(approved,x=>x.type==="expense"?x.amount:0),open=sum(approved,x=>!["paid","cancelled"].includes(x.status)?x.amount:0);
  const receivable=activeRows(data.transactions).filter(x=>x.type==="income"&&x.status!=="paid"&&x.status!=="cancelled");
+ const pendingApproval=activeRows(data.transactions).filter(x=>approvalOf(x)==="pending");
  const payable=activeRows(data.transactions).filter(x=>x.type==="expense"&&x.status!=="paid"&&x.status!=="cancelled");
  $("content").innerHTML=`<div class="toolbar"><div><h2>Overview</h2><p>Resumo financeiro do mês atual.</p></div><div class="actions"><button class="btn" data-action="new-folder">+ Categoria</button><button class="btn primary" data-action="new-tx">+ Novo lançamento</button></div></div>
- <div class="grid g4">${kpi("Entradas",inc,"green","mês atual")}${kpi("Saídas",out,"red","mês atual")}${kpi("Resultado",inc-out,inc-out>=0?"green":"red")}${kpi("Em aberto",open,"amber")}</div>
- <div class="grid g2" style="margin-top:16px"><div class="card"><div class="statrow"><div><h3 style="margin:0">A receber</h3><div class="muted" style="font-size:12px">${receivable.length} lançamento(s)</div></div><button class="btn small" data-view-jump="receivable">Ver tudo</button></div><div style="margin-top:15px">${receivable.slice(0,5).map(x=>`<div class="statrow" style="padding:9px 0;border-bottom:1px solid var(--line)"><span>${esc(x.description)}</span><b class="green">${money(x.amount)}</b></div>`).join("")||'<div class="empty" style="padding:20px">Nada pendente.</div>'}</div></div>
- <div class="card"><div class="statrow"><div><h3 style="margin:0">A pagar</h3><div class="muted" style="font-size:12px">${payable.length} lançamento(s)</div></div><button class="btn small" data-view-jump="payable">Ver tudo</button></div><div style="margin-top:15px">${payable.slice(0,5).map(x=>`<div class="statrow" style="padding:9px 0;border-bottom:1px solid var(--line)"><span>${esc(x.description)}</span><b class="red">${money(x.amount)}</b></div>`).join("")||'<div class="empty" style="padding:20px">Nada pendente.</div>'}</div></div></div>
+ <div class="grid g4">${kpi("Entradas",inc,"green","mês atual")}${kpi("Saídas",out,"red","mês atual")}${kpi("Resultado",inc-out,inc-out>=0?"green":"red")}${kpi("Em aberto",open,"amber")}${kpi("Aguardando aprovação",pendingApproval.length,"purple")}</div>
+ <div class="grid g2" style="margin-top:16px"><div class="card"><div class="statrow"><div><h3 style="margin:0">A receber</h3><div class="muted" style="font-size:12px">${receivable.length} lançamento(s)</div></div><button class="btn small" data-view-jump="receivable">Ver tudo</button></div><div style="margin-top:15px">${receivable.slice(0,5).map(x=>`<div class="statrow" style="padding:9px 0;border-bottom:1px solid var(--line)"><span><b>${esc(x.description)}</b><div class="muted">Vencimento: ${dateBR(x.due_date||x.transaction_date)} · ${approvalLabel(approvalOf(x))}</div></span><b class="green">${money(x.amount)}</b></div>`).join("")||'<div class="empty" style="padding:20px">Nada pendente.</div>'}</div></div>
+ <div class="card"><div class="statrow"><div><h3 style="margin:0">A pagar</h3><div class="muted" style="font-size:12px">${payable.length} lançamento(s)</div></div><button class="btn small" data-view-jump="payable">Ver tudo</button></div><div style="margin-top:15px">${payable.slice(0,5).map(x=>`<div class="statrow" style="padding:9px 0;border-bottom:1px solid var(--line)"><span><b>${esc(x.description)}</b><div class="muted">Vencimento: ${dateBR(x.due_date||x.transaction_date)} · ${approvalLabel(approvalOf(x))}</div></span><b class="red">${money(x.amount)}</b></div>`).join("")||'<div class="empty" style="padding:20px">Nada pendente.</div>'}</div></div></div>
  <div class="card" style="margin-top:16px"><div class="statrow"><h3 style="margin:0">Últimos lançamentos</h3><button class="btn small" data-view-jump="transactions">Ver movimentações</button></div><div style="margin-top:12px">${txTable(activeRows(data.transactions).sort((a,b)=>String(b.transaction_date).localeCompare(String(a.transaction_date))).slice(0,8))}</div></div>`;
 }
 function renderTransactions(){
@@ -338,8 +373,8 @@ function renderTxList(filter){
 }
 function renderOpen(type){
  const rows=activeRows(data.transactions).filter(x=>x.type===type&&x.status!=="paid"&&x.status!=="cancelled").sort((a,b)=>String(a.due_date||a.transaction_date).localeCompare(String(b.due_date||b.transaction_date)));
- const title=type==="income"?"A receber":"A pagar";const total=sum(rows,x=>x.amount);
- $("content").innerHTML=`<div class="toolbar"><div><h2>${title}</h2><p>Controle de valores pendentes.</p></div><button class="btn primary" data-action="new-tx" data-type="${type}">+ ${type==="income"?"Nova entrada":"Nova saída"}</button></div><div class="grid g3">${kpi("Total em aberto",total,type==="income"?"green":"red")}${kpi("Quantidade",rows.length,"blue")}${kpi("Vencidos",rows.filter(x=>x.due_date&&x.due_date<today()).length,"amber")}</div><div class="card" style="margin-top:16px">${txTable(rows)}</div>`;
+ const title=type==="income"?"A receber":"A pagar";const total=sum(rows,x=>x.amount),approvedTotal=sum(rows.filter(isApproved),x=>x.amount),pendingTotal=sum(rows.filter(x=>approvalOf(x)==="pending"),x=>x.amount);
+ $("content").innerHTML=`<div class="toolbar"><div><h2>${title}</h2><p>Controle de valores pendentes. Registros aguardando aprovação aparecem aqui, mas não entram nos indicadores contabilizados.</p></div><button class="btn primary" data-action="new-tx" data-type="${type}">+ ${type==="income"?"Nova entrada":"Nova saída"}</button></div><div class="grid g3">${kpi("Total em aberto",total,type==="income"?"green":"red")}${kpi("Aprovado",approvedTotal,"green")}${kpi("Aguardando aprovação",pendingTotal,"purple")}${kpi("Quantidade",rows.length,"blue")}${kpi("Vencidos",rows.filter(x=>x.due_date&&x.due_date<today()).length,"amber")}</div><div class="card" style="margin-top:16px">${txTable(rows)}</div>`;
 }
 function renderFolders(){
  $("content").innerHTML=`<div class="toolbar"><div><h2>Categorias / Pastas</h2><p>Organize receitas e despesas por categorias.</p></div><button class="btn primary" data-action="new-folder">+ Nova pasta</button></div><div class="foldergrid">${activeRows(data.folders).map(f=>{const a=activeRows(data.transactions).filter(x=>x.folder_id===f.id);return `<div class="card"><div class="statrow"><div class="iconbox">▣</div><div class="actions"><button class="btn small" data-action="edit-folder" data-id="${f.id}">Editar</button><button class="btn small danger" data-action="delete-folder" data-id="${f.id}">Excluir</button></div></div><h3>${esc(f.name)}</h3><p class="muted" style="font-size:12px">${esc(f.description||"")}</p><div class="grid g2"><div><small class="muted">Entradas</small><b class="green" style="display:block">${money(sum(a,x=>x.type==="income"?x.amount:0))}</b></div><div><small class="muted">Saídas</small><b class="red" style="display:block">${money(sum(a,x=>x.type==="expense"?x.amount:0))}</b></div></div><button class="btn ghost" style="width:100%;margin-top:14px" data-action="open-folder" data-id="${f.id}">Abrir pasta</button></div>`}).join("")||'<div class="card empty">Nenhuma categoria cadastrada.</div>'}</div>`;
@@ -473,7 +508,7 @@ function txModal(id,type="income"){
  openModal(`<div class="modalhead"><h3>${x?"Editar lançamento":"Novo lançamento"}</h3><button class="close" data-close>×</button></div>
  <form id="txForm"><input type="hidden" id="f_id" value="${x?.id||""}"><div class="formgrid">
  <div class="field"><label>Tipo</label><select id="f_type"><option value="income">Entrada</option><option value="expense">Saída</option></select></div>
- <div class="field"><label>Status</label><select id="f_status"><option value="paid">Pago / Recebido</option><option value="pending">Pendente</option><option value="overdue">Vencido</option><option value="cancelled">Cancelado</option></select></div>
+ <div class="field"><label>Status financeiro</label><select id="f_status"><option value="paid">Pago / Recebido</option><option value="pending">Pendente</option><option value="overdue">Vencido</option><option value="cancelled">Cancelado</option></select></div><div class="field"><label>Aprovação</label><select id="f_approval"><option value="approved">Aprovado pelo admin</option><option value="pending">Aguardando aprovação</option><option value="rejected">Rejeitado</option></select><div class="approval-note">Novos registros criados pelas abas A receber/A pagar ficam aguardando confirmação.</div></div>
  <div class="field full"><label>Descrição *</label><input id="f_desc" required value="${esc(x?.description||"")}"></div>
  <div class="field"><label>Valor (R$) *</label><input id="f_amount" data-money inputmode="decimal" required value="${x?String(x.amount):""}"></div>
  <div class="field"><label>Data *</label><input id="f_date" type="date" required value="${x?.transaction_date||today()}"></div>
@@ -487,12 +522,12 @@ function txModal(id,type="income"){
  <div class="field"><label>Referência</label><input id="f_ref" value="${esc(x?.reference||"")}"></div>
  <div class="field full"><label>Observações</label><textarea id="f_notes">${esc(x?.notes||"")}</textarea></div></div>
  <div class="modalfoot"><button type="button" class="btn" data-close>Cancelar</button><button class="btn primary">Salvar lançamento</button></div></form>`);
- if(x){$("f_type").value=x.type;$("f_status").value=x.status;$("f_folder").value=x.folder_id||"";$("f_account").value=x.account_id||"";$("f_person").value=x.person_id||"";$("f_service").value=x.service_id||"";$("f_card").value=x.card_id||"";$("f_method").value=x.payment_method||""}
+ if(x){$("f_approval").value=approvalOf(x);$("f_type").value=x.type;$("f_status").value=x.status;$("f_folder").value=x.folder_id||"";$("f_account").value=x.account_id||"";$("f_person").value=x.person_id||"";$("f_service").value=x.service_id||"";$("f_card").value=x.card_id||"";$("f_method").value=x.payment_method||""} else {$("f_approval").value=(type==="income"||type==="expense")?"pending":"approved";}
  $("txForm").onsubmit=async e=>{e.preventDefault();await saveTx()}
 }
 async function saveTx(){
  const id=$("f_id").value;
- const o={user_id:user.id,type:$("f_type").value,status:$("f_status").value,description:$("f_desc").value.trim(),amount:num($("f_amount").value),transaction_date:$("f_date").value,due_date:$("f_due").value||null,folder_id:$("f_folder").value||null,account_id:$("f_account").value||null,person_id:$("f_person").value||null,service_id:$("f_service").value||null,card_id:$("f_card").value||null,payment_method:$("f_method").value||null,reference:$("f_ref").value.trim()||null,notes:$("f_notes").value.trim()||null,is_recurring:false};
+ const o={user_id:user.id,type:$("f_type").value,status:$("f_status").value,description:$("f_desc").value.trim(),amount:num($("f_amount").value),transaction_date:$("f_date").value,due_date:$("f_due").value||null,folder_id:$("f_folder").value||null,account_id:$("f_account").value||null,person_id:$("f_person").value||null,service_id:$("f_service").value||null,card_id:$("f_card").value||null,payment_method:$("f_method").value||null,reference:$("f_ref").value.trim()||null,notes:withApproval($("f_notes").value.trim(),$("f_approval").value),is_recurring:false};
  const r=id?await sb.from("fin_transactions").update(o).eq("id",id).eq("user_id",user.id):await sb.from("fin_transactions").insert(o);
  if(r.error){toast(r.error.message,true);return}closeModal();await load();toast("Lançamento salvo com sucesso.");
 }
