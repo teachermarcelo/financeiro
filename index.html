@@ -208,7 +208,7 @@ function installMoneyInputs(){
 function openModal(html){$("modalBox").innerHTML=html;$("modal").classList.add("open");installMoneyInputs()}
 function closeModal(){$("modal").classList.remove("open")}
 function kpi(title,value,cls="blue",sub=""){
- const countKpi=/^(lançamentos|quantidade|vencidos|parcelas|contatos)$/i.test(String(title).trim());
+ const countKpi=/^(lançamentos|quantidade|vencidos|parcelas|contatos|aguardando aprovação)$/i.test(String(title).trim());
  const shown=countKpi && typeof value==="number" ? Number(value).toLocaleString("pt-BR") : (typeof value==="number" ? money(value) : value);
  return `<div class="card kpi"><small>${esc(title)}</small><strong class="${cls}">${shown}</strong>${sub?`<div class="muted" style="font-size:11px;margin-top:5px">${esc(sub)}</div>`:""}</div>`;
 }
